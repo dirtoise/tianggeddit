@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="gap-2">
+
+
+
+    <div class="row border">
+        <div class="col">
+            subtiangge header here
+        </div>
+    </div>
+
+
+    <div class="row gap-2">
+        <div class="col-sm-3 p-1 rounded">
+
+            <div class="rounded-top">
+                <div class="col">
+                    &nbsp
+                </div>
+            </div>
+
+            <div class="align-content-center flex-wrap bg-light-gradient rounded">
+                {% for user_data in profile_data %}
+                <div class="ps-2">
+                    <img src="{{ user_data.avatar }}" class="rounded-circle" style="width:30%">
+                </div>
+                <div class="">
+                    &nbsp
+                </div>
+                <div class="row">
+                    <div class="col-sm-1">
+
+                    </div>
+
+                    <div class="fs-5 col-auto">
+                        {{user_data.username}}
+                    </div>
+
+                </div>
+
+                {% endfor %}
+            </div>
+
+            <div class="border p-2 rounded">
+                {% for tiangge in user_tiangges %}
+                    <div class="">
+                        <a href="{{ url_for('tiangge', name = tiangge['name']) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                            t/{{ tiangge['name'] }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-sm-8 p-2 gap-2">
+            <div class="row p-2">
+                {% for user_data in profile_data %}
+                    <div class="col-auto text-underline-hover">
+                            <a href="{{url_for('profile', profile_name = user_data.username) }}"  method="get" class="lead fs-6 text-secondary">
+                                <small>
+                                    profile
+                                </small>
+                            </a>
+                    </div>
+                    <div class="col-auto text-underline-hover">
+                        <a href="{{url_for('profile_submitted', profile_name = user_data.username) }}"  method="get" class=" lead fs-6 text-secondary">
+                            <small>
+                                submitted
+                            </small>
+                        </a>
+                    </div>
+                    <div class="col-auto text-underline-hover">
+                        <a href="{{url_for('profile_liked', profile_name = user_data.username) }}"  method="get" class=" lead fs-6 text-secondary">
+                            <small>
+                                liked
+                            </small>
+                        </a>
+                    </div>
+                    <div class="col-auto text-underline-hover">
+                        <a href="{{url_for('profile_disliked', profile_name = user_data.username) }}"  method="get" class=" lead fs-6 text-secondary">
+                            <small>
+                                <strong>
+                                    disliked
+                                </strong>
+                            </small>
+                        </a>
+                    </div>
+                    <div class="col-auto text-underline-hover">
+                        <a href="{{url_for('profile_saved', profile_name = user_data.username) }}"  method="get" class=" lead fs-6 text-secondary">
+                            <small>
+                                saved
+                            </small>
+                        </a>
+                    </div>
+                    <div class="col-auto text-underline-hover">
+                        <a href="{{url_for('profile_hidden', profile_name = user_data.username) }}"  method="get" class=" lead fs-6 text-secondary">
+                            <small>
+                                hidden
+                            </small>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="container row">
+                <div class="">
+                    <div class="container gap-2">
+                        {% for posts in posts_submitted|reverse %}
+                            {% for post_id, approval_type in user_dislikes.items() %}
+                            <div class="row">
+                                {% if user_logged == 'True' %}
+                                    {% if post_id == posts.post_id %}
+                                        <div class="col-3 py-2">
+                                        <form action="{{ url_for('cntnt_pprvl_process', name=posts.name, title=posts.title, hexcd=posts.hex_cd)}}" method="post">
+
+                                            <input  type="text" name="tiangge_name" value="{{name}}" hidden readonly>
+                                            <input type="number" name="approval_like" value="{{posts.like}}" hidden readonly>
+                                            <input  type="number" name="approval_dislike" value="{{posts.dislike}}" hidden readonly>
+                                            <input  type="number" name="tiangge_id" value="{{posts.tiangge_id}}" hidden readonly>
+                                            <input type="number" name="user_id" value="{{user_id}}" hidden readonly>
+                                            <input type="number" name="approval_id" value="{{approval_type}}" hidden readonly>
+                                            <input  type="number" name="post_id" value="{{posts.post_id}}" hidden readonly>
+                                                <div class="gap-2">
+                                                    {% if approval_type == 0 %}
+                                                        <div class="row p-1">
+                                                            <div class="col-auto">
+                                                                <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approve">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-auto fs-8 my-2">
+                                                                {{posts.like}}
+                                                            </div>
+                                                        </div>
+                                                        <div class="row p-1">
+                                                            <div class="col-auto">
+                                                                <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapprove">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak-fill" viewBox="0 0 16 16">
+                                                                      <path fill-rule="evenodd" d="M8.931.586 7 3l1.5 4-2 3L8 15C22.534 5.396 13.757-2.21 8.931.586ZM7.358.77 5.5 3 7 7l-1.5 3 1.815 4.537C-6.533 4.96 2.685-2.467 7.358.77Z"/>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+
+                                                            <div class="col-auto fs-8 my-2">
+                                                                {{posts.dislike}}
+                                                            </div>
+                                                        </div>
+                                                    {% elif approval_type == 1 %}
+                                                        {{ skip }}
+                                                    {% elif approval_type == 3 %}
+                                                        {{ skip}}
+                                                    {% endif %}
+                                                </div>
+                                        </form>
+                                    {% else %}
+                                        {{skip}}
+                                    {% endif %}
+                                {% elif user_logged == 'False' %}
+                                    <div class="col-3 py-2">
+                                        <div class="gap-2">
+                                            <div class="row p-1">
+                                                <div class="col-12 col-sm-4">
+                                                    <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approve" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div class="col fs-8 my-2">
+                                                    {{posts.like}}
+                                                </div>
+                                            </div>
+
+                                            <div class="row p-1">
+                                                <div class="col-12 col-sm-4">
+                                                    <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapprove" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
+                                                          <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+
+                                                <div class="col fs-8 my-2">
+                                                    {{posts.dislike}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                {% endif %}
+                            </div>
+
+                                {% if post_id == posts.post_id %}
+                                    {% if approval_type == 0 %}
+                                        <div class="col-7 p-2 pe-5">
+                                            <div class="row">
+                                                <div class="col-auto">
+                                                    <a href="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" class=" fs-5">
+                                                       <p>
+                                                           {{ posts.title }}
+                                                       </p>
+                                                    </a>
+                                                        on
+                                                    <a href="{{ url_for('tiangge', name=posts.name) }}" class=" lead fs-6">
+                                                        t/{{posts.name}}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="fs-7 "> Submitted on {{posts.date_created}} by
+                                                    <a href="{{url_for('profile', profile_name=posts.username)}}" class="link-primary text-underline-hover">
+                                                        {{posts.username}}
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                            <div class="col-2">
+                                                <div class="btn-group ">
+                                                  <button class="btn btn-light dropdown btn-sm rounded" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                                      <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                                    </svg>
+                                                  </button>
+                                                  <ul class="dropdown-menu">
+                                                    {% if posts.user_id == user_id %}
+                                                            <form action="{{ url_for('text_post_edit', name=name, hexcd=posts.hex_cd, title=posts.title) }}" method="post">
+                                                                <button type="submit" value="Edit" class="dropdown-item">Edit</button>
+                                                                <p><input name="hex_cd" value="{{posts.hex_cd}}" readonly hidden> </p>
+                                                                <p><input type="number" name="post_id" value="{{posts.post_id}}" readonly hidden> </p>
+                                                                <p><input name="date_created" value="{{posts.date_created}}" readonly hidden> </p>
+                                                            </form>
+                                                            <form action="{{ url_for('text_post_delete', name=name, hexcd=posts.hex_cd, title=posts.title) }}" method="post">
+                                                                <button type="submit" value="Delete" class="dropdown-item">Delete</button>
+                                                                <p><input type="number" name="approval_id" value="{{posts.approval_id}}" hidden readonly> </p>
+                                                                <p><input name="hex_cd" value="{{posts.hex_cd}}" readonly hidden> </p>
+                                                                <p><input type="number" name="post_id" value="{{posts.post_id}}" readonly hidden> </p>
+                                                                <p><input name="date_created" value="{{posts.date_created}}" readonly hidden> </p>
+                                                            </form>
+                                                    {% endif %}
+                                                  </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-3">
+
+                                            </div>
+                                            <div class="col-9 row">
+                                                <input type="text" name="name" value="{{ name }}" hidden readonly>
+                                                {% if posts.user_id == user_id %}
+                                                    <div class="col-sm-3">
+                                                        <form action="{{ url_for('text_post_edit', name=name, hexcd=posts.hex_cd, title=posts.title) }}" method="post">
+                                                            <button type="submit" value="Edit" class="btn btn-primary btn-cstm-sm">Edit</button>
+                                                            <p><input name="hex_cd" value="{{posts.hex_cd}}" readonly hidden> </p>
+                                                            <p><input type="number" name="post_id" value="{{posts.post_id}}" readonly hidden> </p>
+                                                            <p><input name="date_created" value="{{posts.date_created}}" readonly hidden> </p>
+                                                        </form>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <form action="{{ url_for('text_post_delete', name=name, hexcd=posts.hex_cd, title=posts.title) }}" method="post">
+                                                            <button type="submit" value="Delete" class="btn btn-danger btn-cstm-sm">Delete</button>
+                                                            <p><input type="number" name="approval_id" value="{{posts.approval_id}}" hidden readonly> </p>
+                                                            <p><input name="hex_cd" value="{{posts.hex_cd}}" readonly hidden> </p>
+                                                            <p><input type="number" name="post_id" value="{{posts.post_id}}" readonly hidden> </p>
+                                                            <p><input name="date_created" value="{{posts.date_created}}" readonly hidden> </p>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                                <div class="row">
+                                                    <div class="col-auto text-underline-hover">
+                                                        {% for post_id, count in comment_count.items() %}
+                                                            {% if post_id == posts.post_id %}
+                                                                <a href="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" class=" lead fs-6 text-secondary">
+                                                                    <small>
+                                                                        {% if count > 1 %}
+                                                                            {{count}} comments
+                                                                        {% elif count == 1 %}
+                                                                            {{count}} comment
+                                                                        {% elif count == 0 %}
+                                                                            comment
+                                                                        {% endif %}
+                                                                    </small>
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-auto text-underline-hover">
+                                                        <a href="" class=" lead fs-6 text-secondary">
+                                                            <small>
+                                                                share
+                                                            </small>
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-auto fs-65">
+                                                        {% for post_ids, saved in user_saved.items() %}
+                                                            {% if posts.post_id == post_ids %}
+                                                                {% if saved == 'Saved' %}
+                                                                    <form action="{{ url_for('unsave_post_process')}}" method="post">
+                                                                        <input name="post_id" value="{{posts.post_id}}" readonly hidden>
+                                                                        <button type="submit" value="Unsave" class="btn btn-link btn-cstm-sm  text-secondary lead">unsave</button>
+                                                                    </form>
+                                                                {% elif saved == 'Unsaved' %}
+                                                                    <form action="{{ url_for('save_post_process') }}" method="post">
+                                                                        <input name="post_id" value="{{posts.post_id}}" readonly hidden>
+                                                                        <input name="tiangge_id" value="{{posts.tiangge_id}}" readonly hidden>
+                                                                        <button type="submit" value="Save" class="btn btn-link btn-cstm-sm  text-secondary lead">save</button>
+                                                                    </form>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+
+                                                    <div class="col-auto text-underline-hover">
+                                                        <a href="" class=" lead fs-6 text-secondary">
+                                                            <small>
+                                                                hide
+                                                            </small>
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-auto text-underline-hover">
+                                                        <a href="" class=" lead fs-6 text-secondary">
+                                                            <small>
+                                                                report
+                                                            </small>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="p-2 border-bottom">
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+
+

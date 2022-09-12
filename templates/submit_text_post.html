@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="gap-2">
+    <div class="row border ">
+       subtiangge header here
+    </div>
+    <div class="row p-2">
+        <div class="col-sm-8 ">
+        <form action="{{url_for('submit_text_process', name=name)}}" method="post" id="post_form">
+            <div class="container rounded border">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="number" name="tiangge_id" value="{{tiangge_id}}" readonly hidden>
+                <input type="number" name="user_id" value="{{user_id}}" readonly hidden>
+
+                <div class="row pt-4">
+                    <div class="col">
+                      <input type="text" class="form-control" name="title" id="title" placeholder="Title" maxlength="512" required>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select" aria-label="Default select example" id="select_form" onchange="select_collapse_Function()">
+                          <option selected disabled>Post Content</option>
+                          <option value="text_post" data-bs-target="#text_post_collapse" >Text</option>
+                          <option value="media_post" data-bs-target="#media_post_collapse" >Media</option>
+                          <option value="shared_link_post" data-bs-target="#shared_link_post_collapse" >Shared Link</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Text post form -->
+                <div class="collapse fade mt-3" id="text_post_collapse">
+                    <div class="mb-3">
+                        <textarea class="form-control rounded" id="text_content" name="content" placeholder="Content of this post" maxlength="40000" rows="4" cols="100%"></textarea>
+                    </div>
+                </div>
+
+                <!-- Media post form -->
+                <div class="collapse fade mt-3" id="media_post_collapse">
+                    <div class="mb-3">
+                      <input type="file" class="form-control" name="file" id="file_content">
+                      <input type="hidden" name="file_confirm" value="file_confirm" id="file_confirm"/>
+                    </div>
+                </div>
+
+                <!-- Shared link post form -->
+                <div class="collapse fade mt-3" id="shared_link_post_collapse">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="content" id="link_content" placeholder="Enter link url" maxlength="10000" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                </div>
+
+                <div class="mb-3 text-end">
+                    <input class="btn btn-secondary btn-sm" type="submit" value="Back">
+                    <input class="btn btn-primary btn-sm" type="submit" value="Submit">
+                </div>
+            </div>
+        </form>
+
+        </div>
+
+        <div class=" col-sm-4">
+            <div>
+                {% if user_logged == 'True' %}
+                    {% include 'sidebar.html' %}
+                {% elif user_logged == 'False' %}
+                {% endif %}
+            </div>
+            <div class=" position-relative text-center gap-2 border rounded ">
+                <div class="p-2">
+                    <p class="fs-3">
+                        {{name}}
+                    </p>
+
+                    <div class="p-2">
+                        <form action="{{ url_for('subscribe_process', name=name) }}" method="post">
+                            <input type="text" name="name" value="{{ name }}" hidden readonly>
+                            {% if cnfrm_in_pvt == False %}
+                                <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
+                                <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
+                            {% elif cnfrm_in_pvt == True %}
+                                <input type="text" name="subscribe_process" value="unsubscribe" hidden readonly>
+                                <button type="submit" class="btn btn-danger btn-sm">Unsubscribe</button>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                    <div>
+                        <form action="{{ url_for('login',) }}" method="get">
+                            {% if user_logged == 'False' %}
+                                <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
+                                <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
+                            {% endif %}
+                        </form>
+                        <form action="{{ url_for('tiangge_delete') }}" method="post">
+                            <input type="number" name="id" value="{{id}}" hidden readonly>
+                            <button type="submit" class="btn btn-danger btn-sm">Delete t/{{ name }}</button>
+                        </form>
+                    </div>
+
+                    <p class="fs-6">
+                        Welcome to <a href="{{ url_for('tiangge', name=name) }}" class="text-decoration-none"> t/{{name}}</a>!
+                    </p>
+
+                </div>
+                    <!-- Add table column: tiangge_about that adds information about the tiangge-->
+                    <p class="fs-7">
+                        Sub-Tiangge rules:
+                    </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

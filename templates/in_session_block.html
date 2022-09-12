@@ -1,0 +1,15 @@
+    {% block content %}
+
+User in session!
+
+    <div>
+        <p><a href="{{url_for('profile', profile_name='{{session.user}}')}}"> {{session.user}} </a></p>
+    </div>
+
+    <form action="{{url_for('logout_process')}}" method="post">
+        <div>
+           <input type="submit" value="Logout">
+        </div>
+    </form>
+
+{% endblock %}

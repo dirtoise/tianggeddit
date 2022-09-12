@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="{{url_for('tiangge_process')}}" method="post">
+    <div>
+        <p><input type="text" name="name" placeholder="Tiangge name" required> </p>
+    </div>
+    <div>
+       <input type="submit" value="Make Tiangge">
+</form>
+
+{% endblock %}

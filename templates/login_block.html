@@ -1,0 +1,18 @@
+{% block content %}
+
+User not logged in!
+
+<form action="{{url_for('login_process')}}" method="post">
+    <div>
+        <p><input type="text" name="username" placeholder="Username"> </p>
+        <p><input type="text" name="password" placeholder="Password"> </p>
+    </div>
+    <div>
+       <input type="submit" value="Log-in">
+</form>
+        <p>
+            No account? <a href="{{url_for('register')}}">Sign-up here</a>
+        </p>
+    </div>
+
+{% endblock %}

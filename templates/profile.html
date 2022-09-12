@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="gap-2">
+    <div class="row border">
+        <div class="col">
+            subtiangge header here
+        </div>
+    </div>
+
+    <div class="row gap-2">
+        <div class="col-sm-3 p-1 rounded">
+
+            <div class="rounded-top">
+                <div class="col">
+                    &nbsp
+                </div>
+            </div>
+
+            <div class="align-content-center flex-wrap bg-light-gradient rounded">
+                {% for user_data in profile_data %}
+                <div class="ps-2">
+                    <img src="{{ user_data.avatar }}" class="rounded-circle" style="width:30%">
+                </div>
+                <div class="">
+                    &nbsp
+                </div>
+                <div class="row">
+                    <div class="col-sm-1">
+
+                    </div>
+
+                    <div class="fs-5 col-auto">
+                        {{user_data.username}}
+                    </div>
+
+                </div>
+
+                {% endfor %}
+            </div>
+
+            <div class="border p-2 rounded">
+                {% for tiangge in user_tiangges %}
+                    <div class="">
+                        <a href="{{ url_for('tiangge', name = tiangge['name']) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                            t/{{ tiangge['name'] }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-sm-8 p-2 gap-2">
+            <div class="row p-2">
+                {% for user_data in profile_data %}
+
+                <div class="col-auto">
+                        <a href="{{url_for('profile', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                            <small>
+                                <strong>
+                                    profile
+                                </strong>
+                            </small>
+                        </a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('profile_submitted', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                        <small>
+                            submitted
+                        </small>
+                    </a>
+                </div>
+                {% if session.user == profile_name %}
+                <div class="col-auto">
+                    <a href="{{url_for('profile_liked', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                        <small>
+                            liked
+                        </small>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('profile_disliked', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                        <small>
+                            disliked
+                        </small>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('profile_saved', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                        <small>
+                            saved
+                        </small>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="{{url_for('profile_hidden', profile_name = user_data.username) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                        <small>
+                            hidden
+                        </small>
+                    </a>
+                </div>
+                {% else %}
+                    {{skip}}
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+

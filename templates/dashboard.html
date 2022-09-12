@@ -1,0 +1,73 @@
+{% block content %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-custom">
+
+    <a class="navbar-brand font-size-small" href="#">
+      MY TIANGGES
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link font-size-small" href="#">POPULAR <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link font-size-small" href="#">ALL</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link font-size-small" href="#">RANDOM</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link font-size-small" href="{{url_for('tiangge_list')}}">TIANGGES</a>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+
+      {% if 'user' not in session %}
+        <div>
+           <a href="{{url_for('login')}}" class="nav-link font-size-small"> Log-in </a>
+        </div>
+
+      {% elif 'user' in session %}
+
+          <div>
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a href="{{url_for('profile_submitted', profile_name= session.user)}}" class="nav-link font-size-small">
+                  {{session.user}}
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <form action="{{url_for('logout_process')}}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="submit" value="Log-out" class="btn-default btn btn-xs font-size-small">
+                </form>
+              </li>
+            </ul>
+
+          </div>
+
+      {% endif %}
+
+    </div>
+
+    <form class="form-inline">
+      <span class="navbar-text">
+          {% if 'user' not in session %}
+            <a class="nav-link" href="{{ url_for('login')}}">< ! ></a>
+          {% elif 'user' in session %}
+            <a class="nav-link" href="{{ url_for('tiangge_register')}}">< ! ></a>
+          {% endif %}
+      </span>
+    </form>
+
+  </nav>
+
+{% endblock %}
+

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row position-relative center-content">
+        <div class="col-3"></div>
+        <div class="col-6 card bg-light">
+            <div class="row">
+                <div class="col-7 py-3">
+                    <div class="container ">
+                        <div class="gap-4 ">
+                            <form action="{{url_for('register_process')}}" method="POST">
+                                <div class="row">
+                                    <div class="col-12 pt-4">
+                                        <p><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> </p>
+                                        <p><input type="text" class="form-control" name="email" placeholder="E-mail" id="email" required> </p>
+                                        <p><input type="text" class="form-control" name="username" placeholder="Username" id="username" required> </p>
+                                        <p><input type="text" class="form-control" name="password" placeholder="Password" id="password" required> </p>
+                                        <p><input type="text" class="form-control" name="confirm_password" placeholder="Confirm Password" id="confirm_password" required> </p>
+
+                                        <div class="d-grid gap-2 mx-auto">
+                                            <input class="btn btn-primary" type="submit" value="Register">
+                                        </div>
+                                        <div class="border-bottom py-2"></div>
+                                        <div class="text-center p-3">
+                                            Already have an account? <a href="{{url_for('login')}}" >Log-in here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 border-start ">
+                    <div class="text-center py-3">
+                        <div class="container position-relative center-content">
+                            <a href="{{ url_for('index') }}">
+                                <img src="{{ url_for('static',filename='/images/logo/tianggeddit_logo_3.png') }}" style="width:100%">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+{% endblock %}

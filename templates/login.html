@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4">
+            <div class="container position-relative center-content">
+                <div class="card bg-light">
+                    <div class="text-center py-3">
+                        <div class="container">
+                            <a href="{{ url_for('index') }}">
+                                <img src="{{ url_for('static',filename='/images/logo/tianggeddit_logo_3.png') }}" style="width:90%">
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="border-bottom"></div>
+
+                    <div class="gap-4">
+                        <form action="{{url_for('login_process')}}" method="post">
+                            <div class="row py-3">
+                                <div class="col-2"></div>
+                                <div class="col-8">
+                                    <div class=" start-50">
+                                    <p><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> </p>
+                                    <p><input class="form-control" type="text" name="username" placeholder="Username" required> </p>
+                                    <p><input class="form-control" type="password" name="password" placeholder="Password" required> </p>
+                                    <p><input type="text" name="referrer" value="{{request.referrer}}" hidden readonly> </p>
+                                    </div>
+                                    <div class="d-grid gap-2 mx-auto">
+                                       <input class="btn btn-primary" type="submit" value="Log-in">
+                                    </div>
+                                    <div class="text-center p-3">
+                                        No account? <a href="{{url_for('register')}}">Register here</a>
+                                    </div>
+                                </div>
+                                <div class="col-2"></div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4"></div>
+    </div>
+{% endblock %}
