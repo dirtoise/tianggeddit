@@ -272,8 +272,8 @@ def check_users_approvals(user_id,):
 def select_post_approval_with_user_id(user_id,):
     conn, cur = connect_db(db_path)
     query = 'SELECT DISTINCT pvt_approval_user.user_id, pvt_approval_user.post_id,\
-            pvt_approval_user.approval_type, posts.title, hex.hex_cd,\
-            posts.date_created, users.username,\
+            pvt_approval_user.approval_type, posts.title, hex.hex_cd, posts.content,\
+            posts.content_type, posts.date_created, users.username,\
             posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
             FROM pvt_approval_user\
             INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
