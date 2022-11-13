@@ -1,0 +1,6 @@
+PROFILE FUNCTIONS:
+	Make liking, disliking, saving, hiding based on when it was done instead of when the post was made.
+
+HIDING:
+	Fix hiding function
+
