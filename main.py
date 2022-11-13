@@ -489,11 +489,10 @@ def profile_submitted(profile_name):
         else:
             post_user_privileges = 'Not allowed'
 
-    return render_template('/profiles/submitted.html', profile_data=profile_data,
-                           posts_submitted=posts_submitted, user_logged=user_logged,
-                           profile_name=profile_name, post_user_privileges=post_user_privileges, submit_content=submit_content,
-                           legal_extensions_img=legal_extensions_img, legal_extensions_vid=legal_extensions_vid,
-                           user_mask=user_mask)
+    return render_template('/profiles/submitted.html', profile_data=profile_data, posts_submitted=posts_submitted,
+                           user_logged=user_logged, profile_name=profile_name, post_user_privileges=post_user_privileges,
+                           submit_content=submit_content, legal_extensions_img=legal_extensions_img,
+                           legal_extensions_vid=legal_extensions_vid, user_mask=user_mask)
 
 @app.route('/u/<profile_name>/liked')
 def profile_liked(profile_name):
