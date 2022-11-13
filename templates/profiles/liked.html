@@ -19,54 +19,47 @@
     </div>
     <!-- end -->
 
-    <div class="row gap-2">
+    <div class="row gap-2 ">
         <div class="col-sm-3 p-1 rounded" >
-
-            <div class="rounded-top">
-                <div class="col">
-                    &nbsp
-                </div>
-            </div>
-
-            <div class="align-content-center flex-wrap bg-light-gradient rounded">
-                {% for user_data in profile_data %}
-                <div class="ps-2">
-                    <img src="{{ user_data.avatar }}" class="rounded-circle" style="width:30%">
-                </div>
-                <div class="">
-                    &nbsp
-                </div>
-                <div class="row">
-                    <div class="col-sm-1">
-
+            <div class="pt-2">
+                <div class="align-content-center flex-wrap bg-light-gradient rounded">
+                    <div class="ps-2">
+                        <!-- FIX IMG LOCATION -->
+                        <img src="{{ profile_data.data_user_avatar() }}" class="rounded-circle" style="width:30%">
+                        <!-- HERE -->
                     </div>
-
-                    <div class="fs-5 col-auto">
-                        {{user_data.username}}
-                    </div>
-
-                </div>
-
-                {% endfor %}
-            </div>
-
-            <div class="border p-2 rounded">
-                {% for tiangge in user_tiangges %}
                     <div class="">
-                        <a href="{{ url_for('tiangge', name = tiangge['name']) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
-                            t/{{ tiangge['name'] }}
-                        </a>
+                        &nbsp
                     </div>
-                {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-1">
+
+                        </div>
+
+                        <div class="fs-5 col-auto">
+                            {{profile_data.data_user_name()}}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="border p-2 rounded">
+                    {% for tiangge in profile_data.user_tiangges() %}
+                        <div class="">
+                            <a href="{{ url_for('tiangge', name = tiangge) }}"  method="get" class="lead fs-6 link-secondary text-underline-hover">
+                                t/{{ tiangge }}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
         <div class="col-sm-8 p-1 gap-2">
             <div class="row-cols-2">
                 <div class="container row p-2 col-sm-10">
-                    {% for user_data in profile_data %}
                     <div class="btn-group container ">
-                        <a href="{{url_for('profile_submitted', profile_name = user_data.username) }}"  method="get" class="btn btn-outline-dark " >
+                        <a href="{{url_for('profile_submitted', profile_name = profile_data.data_user_name()) }}"  method="get" class="btn btn-outline-dark " >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-task" viewBox="0 0 16 16">
                               <path fill-rule="evenodd" d="M2 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 0-.5-.5H2zM3 3H2v1h1V3z"/>
                               <path d="M5 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM5.5 7a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 4a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9z"/>
@@ -77,7 +70,7 @@
                             </small>
                         </a>
 
-                        <a href="{{url_for('profile_liked', profile_name = user_data.username) }}"  method="get" class="btn btn-outline-dark active" aria-current="page">
+                        <a href="{{url_for('profile_liked', profile_name = profile_data.data_user_name()) }}"  method="get" class="btn btn-outline-dark active" aria-current="page">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
                               <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
                             </svg>
@@ -86,7 +79,7 @@
                             </small>
                         </a>
 
-                        <a href="{{url_for('profile_disliked', profile_name = user_data.username) }}"  method="get" class="btn btn-outline-dark">
+                        <a href="{{url_for('profile_disliked', profile_name = profile_data.data_user_name()) }}"  method="get" class="btn btn-outline-dark">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
                               <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
                             </svg>
@@ -95,7 +88,7 @@
                             </small>
                         </a>
 
-                        <a href="{{url_for('profile_saved', profile_name = user_data.username) }}"  method="get" class="btn btn-outline-dark">
+                        <a href="{{url_for('profile_saved', profile_name = profile_data.data_user_name()) }}"  method="get" class="btn btn-outline-dark">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
                               <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
                             </svg>
@@ -104,7 +97,7 @@
                             </small>
                         </a>
 
-                        <a href="{{url_for('profile_hidden', profile_name = user_data.username) }}"  method="get" class="btn btn-outline-dark">
+                        <a href="{{url_for('profile_hidden', profile_name = profile_data.data_user_name()) }}"  method="get" class="btn btn-outline-dark">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
                               <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
                               <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
@@ -116,9 +109,7 @@
                         </a>
 
                     </div>
-                    {% endfor %}
                 </div>
-
         </div>
                 <div class="container row p-2 col-sm-10">
                     <div class="">
@@ -135,16 +126,15 @@
                                 </div>
 
                             {% else %}
-                                {% for posts in posts_liked|reverse %}
-                                    {% for post_id, approval_type in user_approval.items() %}
-                                        {% if approval_type == 1 %}
-                                            {% if post_id == posts.post_id %}
+                                {% for post_id, approval_type in profile_data.user_likes().items() %}
+                                    {% for posts in posts_liked|reverse %}
+                                        {% if approval_type == 1 and post_id == posts.post_id %}
                                                 <div class="row p-2">
                                                     <div class="col-2 p-1 py-2">
                                                         {% if user_logged == 'True' %}
-                                                            {% for id, name in tiangge_data.items() %}
+                                                            {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                 {% if posts.tiangge_id == id %}
-                                                                    {% for post_id, approval_type in user_approval.items() %}
+                                                                    {% for post_id, approval_type in profile_data.user_approved().items() %}
                                                                         {% if post_id == posts.post_id %}
 
                                                                             <form action="{{ url_for('cntnt_pprvl_process', name=name, title=posts.title, hexcd=posts.hex_cd)}}" method="post">
@@ -293,7 +283,7 @@
                                                     <div class="col-8 p-1">
                                                         <div class="row ">
                                                             <div class="col-auto">
-                                                                {% for id, name in tiangge_data.items() %}
+                                                                {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                     {% if posts.tiangge_id == id %}
                                                                         <a href="{{ url_for('tiangge', name=name) }}" class="btn btn-outline-primaryinv badge rounded-pill btn-sm lead fs-7">
                                                                             t/{{name}}
@@ -301,25 +291,34 @@
                                                                     {% endif %}
                                                                 {% endfor %}
 
-                                                                    {% for id, name in tiangge_data.items() %}
-                                                                        {% if posts.tiangge_id == id %}
-                                                                            <a href="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" class="link-dark fs-5">
-                                                                               <p>
-                                                                                   {{ posts.title }}
-                                                                               </p>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
+                                                                {% for id, name in profile_data.tiangges_in_profile().items() %}
+                                                                    {% if posts.tiangge_id == id %}
+                                                                        <a href="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" class="link-dark fs-5">
+                                                                           <p>
+                                                                               {{ posts.title }}
+                                                                           </p>
+                                                                        </a>
+                                                                    {% endif %}
+                                                                {% endfor %}
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            {% for post_id, mask in user_masked.items() %}
+                                                            {% for post_id, mask in profile_data.mask_post_id_approvals().items() %}
                                                                 {% if post_id == posts.post_id %}
                                                                     {% if posts.content_type in legal_extensions_vid %}
                                                                         <div class="col-auto">
                                                                           <button class="btn btn-outline-dark btn-circle  btn-sm-duper" type="button" data-bs-toggle="collapse" href="#multiCollapseExample_{{mask}}" id="videoCollapse_{{mask}}" role="button" aria-expanded="false" aria-controls="multiCollapseExample_{{mask}}" onclick="video_player_Function('{{mask}}')">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16" id="video_svg_{{mask}}">
-                                                                              <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" class=""/>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                                                                              <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                                                                            </svg>
+                                                                          </button>
+                                                                        </div>
+                                                                    {% elif posts.content_type in legal_extensions_img %}
+                                                                        <div class="col-auto">
+                                                                          <button class="btn btn-outline-dark btn-circle  btn-sm-duper" type="button" data-bs-toggle="collapse" href="#multiCollapseExample_{{mask}}" id="imgCollapse_{{mask}}" role="button" aria-expanded="false" aria-controls="multiCollapseExample_{{mask}}" onclick="video_player_Function('{{mask}}')">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-fill" viewBox="0 0 16 16">
+                                                                              <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                                                              <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
                                                                             </svg>
                                                                           </button>
                                                                         </div>
@@ -359,7 +358,7 @@
                                                             {% endfor %}
                                                         </div>
                                                     </div>
-                                                    {% for post_ids, privileges in user_approval_with_id.items() %}
+                                                    {% for post_ids, privileges in profile_data.user_approved_with_user_id().items() %}
                                                         {% if post_ids == posts.post_id %}
                                                             {% if privileges == 'Allowed' %}
                                                             <div class="col-1 p-1 ms-3 pt-2">
@@ -370,7 +369,7 @@
                                                                         </svg>
                                                                     </button>
                                                                     <ul class="dropdown-menu dropdown-menu-lg-end">
-                                                                    {% for id, name in tiangge_data.items() %}
+                                                                    {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                         {% if posts.tiangge_id == id %}
                                                                             <li class="mx-2">
                                                                                 <form action="{{ url_for('text_post_edit', name=name, hexcd=posts.hex_cd, title=posts.title) }}" method="post">
@@ -444,9 +443,9 @@
                                                     </div>
                                                     <div class="col-9 row">
                                                         <div class="col-auto p-1">
-                                                            {% for id, name in tiangge_data.items() %}
+                                                            {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                 {% if posts.tiangge_id == id %}
-                                                                    {% for post_id, count in post_comments.items() %}
+                                                                    {% for post_id, count in profile_data.comment_counter_in_approvals().items() %}
                                                                         {% if post_id == posts.post_id %}
                                                                             <a href="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" class="btn btn-outline-dark btn-sm-super" type="submit">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-left-text " viewBox="0 0 16 16">
@@ -456,7 +455,7 @@
                                                                                 <small style="vertical-align:middle" class="">
                                                                                     {% if count > 1 %}{{count}} comments
                                                                                     {% elif count == 1 %}{{count}} comment
-                                                                                    {% elif count == 0 %}comment
+                                                                                    {% elif count == 0 %} 0 comment
                                                                                     {% endif %}
                                                                                 </small>
                                                                             </a>
@@ -465,7 +464,7 @@
                                                                 {% endif %}
                                                             {% endfor %}
                                                         </div>
-                                                        {% for post_id, mask in user_masked.items() %}
+                                                        {% for post_id, mask in user_mask.items() %}
                                                             {% if post_id == posts.post_id %}
                                                                 <div class="col-auto p-1">
                                                                     <a href="#multiCollapseExample_{{mask}}_share" class="btn btn-outline-dark btn-sm-super" type="submit" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="multiCollapseExample_{{mask}}_share">
@@ -482,7 +481,7 @@
 
                                                         <div class="col-auto text-underline-hover p-1">
                                                             {% if user_logged == 'True' %}
-                                                                {% for post_ids, saved in user_saved.items() %}
+                                                                {% for post_ids, saved in profile_data.users_saved_approvals().items() %}
                                                                     {% if posts.post_id == post_ids %}
                                                                         {% if saved == 'Saved' %}
                                                                             <form action="{{ url_for('unsave_post_process')}}" method="post" id="submitNoButton" >
@@ -505,7 +504,7 @@
                                                                                 <input type="text" name="uploader_username" value="{{ posts.username }}" hidden readonly>
                                                                                 <input type="text" name="post_title" value="{{ posts.title }}" hidden readonly>
                                                                                 <input type="text" name="post_date_created" value="{{ posts.date_created }}" hidden readonly>
-                                                                                {% for id, name in tiangge_data.items() %}
+                                                                                {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                                     {% if posts.tiangge_id == id %}
                                                                                 <input type="text" name="tiangge_name" value="{{ name }}" hidden readonly>
                                                                                     {% endif %}
@@ -568,7 +567,7 @@
                                                                                     <input type="text" name="uploader_username" value="{{ posts.username }}" hidden readonly>
                                                                                     <input type="text" name="post_title" value="{{ posts.title }}" hidden readonly>
                                                                                     <input type="text" name="post_date_created" value="{{ posts.date_created }}" hidden readonly>
-                                                                                    {% for id, name in tiangge_data.items() %}
+                                                                                    {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                                         {% if posts.tiangge_id == id %}
                                                                                     <input type="text" name="tiangge_name" value="{{ name }}" hidden readonly>
                                                                                         {% endif %}
@@ -650,7 +649,7 @@
                                                                       <input type="text" name="post_title" value="{{ posts.title }}" hidden readonly>
                                                                       <input type="text" name="post_date_created" value="{{ posts.date_created }}" hidden readonly>
 
-                                                                      {% for id, name in tiangge_data.items() %}
+                                                                      {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                         {% if posts.tiangge_id == id %}
                                                                             <input type="text" name="tiangge_name" value="{{ name }}" hidden readonly>
                                                                         {% endif %}
@@ -761,28 +760,27 @@
                                                 <div class="row">
                                                     <div class="col-2"></div>
                                                     <div class="col-8">
-
-                                                        {% for post_id, mask in user_masked.items() %}
+                                                        {% for post_id, mask in user_mask.items() %}
                                                             {% if post_id == posts.post_id %}
                                                         <div class="collapse multi-collapse " id="multiCollapseExample_{{mask}}_share">
                                                           <div class="card card-body " style="overflow:auto">
-                                                            {% for id, name in tiangge_data.items() %}
+                                                            {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                                 {% if posts.tiangge_id == id %}
-                                                            <div class="input-group py-2" id="copy_link">
-                                                                <input type="text" class="form-control" value="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" aria-label="Post link" id="{{mask}}_link" readonly>
-                                                                <button type="button" class="btn btn-outline-dark btn-sm" id="{{mask}}" onclick="link_copy_Function('{{mask}}')">Copy link</button>
-                                                            </div>
-                                                            <div class="shareon" style="width:100%;margin:auto;text-align:left" data-url="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}">
-                                                                <a class="twitter" data-title="Tweet {{posts.username}}'s {{posts.title}}."></a>
-                                                                <a class="facebook" data-title="Share {{posts.username}}'s {{posts.title}}."></a>
-                                                                <!-- FB App ID is required for the Messenger button to function -->
-                                                                <!--  <a class="messenger" data-fb-app-id="0123456789012345"></a> -->
-                                                                <a class="reddit"></a>
-                                                                <a class="pinterest"></a>
-                                                                <a class="viber" data-text="Check this out!"></a>
-                                                                <a class="telegram "data-text="Check this out!"></a>
-                                                                <a class="whatsapp" data-text="Check this out!"></a>
-                                                            </div>
+                                                                    <div class="input-group py-2" id="copy_link">
+                                                                        <input type="text" class="form-control" value="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}" aria-label="Post link" id="{{mask}}_link" readonly>
+                                                                        <button type="button" class="btn btn-outline-dark btn-sm" id="{{mask}}" onclick="link_copy_Function('{{mask}}')">Copy link</button>
+                                                                    </div>
+                                                                    <div class="shareon" style="width:100%;margin:auto;text-align:left" data-url="{{ url_for('post', name=name, title=posts.title, hexcd=posts.hex_cd) }}">
+                                                                        <a class="twitter" data-title="Tweet {{posts.username}}'s {{posts.title}}."></a>
+                                                                        <a class="facebook" data-title="Share {{posts.username}}'s {{posts.title}}."></a>
+                                                                        <!-- FB App ID is required for the Messenger button to function -->
+                                                                        <!--  <a class="messenger" data-fb-app-id="0123456789012345"></a> -->
+                                                                        <a class="reddit"></a>
+                                                                        <a class="pinterest"></a>
+                                                                        <a class="viber" data-text="Check this out!"></a>
+                                                                        <a class="telegram "data-text="Check this out!"></a>
+                                                                        <a class="whatsapp" data-text="Check this out!"></a>
+                                                                    </div>
                                                               {% endif %}
                                                             {% endfor %}
 
@@ -794,16 +792,13 @@
 
                                                 </div>
 
-                                                {% if not loop.last %}
+                                                {% if not loop.first %}
                                                     <div class="p-2 border-bottom">
                                                     </div>
                                                 {% else %}
-                                                    <div class="p-2 ">
+                                                    <div class="p-2">
                                                     </div>
                                                 {% endif %}
-                                            {% elif approval_type == 0 %}
-                                                {{ skip }}
-                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 {% endfor %}
@@ -815,11 +810,17 @@
 
         </div>
     </div>
-    <div class="row gap-2">
-        <div class="col-sm-3 p-1">
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+          <a href="{{url_for('index')}}" method="get" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shop-window" viewBox="0 0 16 16">
+              <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zm2 .5a.5.5 0 0 1 .5.5V13h8V9.5a.5.5 0 0 1 1 0V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+          </a>
+          <span class="mb-3 mb-md-0 text-muted">Tianggeddit © 2022 </span>
         </div>
-        <div class="col-sm-8 p-2 gap-2">
-        </div>
+      </footer>
     </div>
 </div>
 

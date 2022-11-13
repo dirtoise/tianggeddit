@@ -26,10 +26,261 @@ app.config['MAX_CONTENT_LENGTH'] = 200 * 1000 * 1000
 csrf = CSRFProtect(app)
 
 
-# thinking of making a class func but dont know what scenario it works best in yet
-# class User_Data:
-#    def __init__(self, user_id):
-#        self.user_id = user_id
+# GOAL: Make a class function that contains all the information from sql.
+# It must be able to call data from the class that the website/user requires
+class Profile_Data:
+    def __init__(self, user_name):
+        self.user_name = user_name
+
+    def profile_name_to_id(self):
+        user_data = username_id_grab(self.user_name)
+        return user_data
+
+    def data_user_name(self):
+        user_data = select_users_specific(self.user_name)
+        for name in user_data:
+            return name['username']
+
+    def data_user_avatar(self):
+        user_data = select_users_specific(self.user_name)
+        for avatar in user_data:
+            return avatar['avatar']
+
+    def user_tiangges(self):
+        tiangge_list = []
+        user_tiangge = slct_sr_tngg(profile_name_to_id(self.user_name))
+        for data in user_tiangge:
+            tiangge_list.append(data['name'])
+        return tiangge_list
+
+    def user_approved(self):
+        user_approval_dict = defaultdict(dict)
+        current_user_approval = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        user_posts = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+
+            user_approval_dict[post['post_id']] = 3
+
+            for user_data in current_user_approval:
+
+                if user_data['post_id'] == post['post_id']:
+                    user_approval_dict[user_data['post_id']] = user_data['approval_type']
+
+        return user_approval_dict
+
+    def user_likes(self):
+        user_likes_dict = defaultdict(dict)
+        for post_id, approval_type in self.user_approved().items():
+            if approval_type == 1:
+                user_likes_dict[post_id] = approval_type
+        return user_likes_dict
+
+    def user_dislikes(self):
+        user_dislikes_dict = defaultdict(dict)
+        for post_id, approval_type in self.user_approved().items():
+            if approval_type == 0:
+                user_dislikes_dict[post_id] = approval_type
+        return user_dislikes_dict
+
+    def user_approved_with_user_id(self):
+        # used as privilege check for posts
+        submitted_posts_dict = defaultdict(dict)
+        approved_posts_dict = defaultdict(dict)
+        user_privileges_dict = defaultdict(dict)
+
+        current_user_post_data = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+
+        for data in current_user_post_data:
+            submitted_posts_dict[data['post_id']] = data['post_id']
+        for post_ids, approval_types in self.user_approved().items():
+            approved_posts_dict[post_ids] = approval_types
+
+        for x, y in submitted_posts_dict.items():
+            for a, b in self.user_approved().items():
+                if a in submitted_posts_dict:
+                    user_privileges_dict[a] = 'Allowed'
+                else:
+                    user_privileges_dict[a] = 'Not allowed'
+        return user_privileges_dict
+
+    def tiangges_in_profile(self):
+        # returns a dict of tiangges the current user is subscribed in
+
+        tiangge_dict = defaultdict(dict)
+        tiangge_id_name_dict = defaultdict(dict)
+
+        user_posts = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+            tiangge_dict[post['tiangge_id']] = ''
+        for tiangge_id, names in tiangge_dict.items():
+            tiangge_specific = select_tiangge_with_id(tiangge_id)
+            for data in tiangge_specific:
+                if data['id'] == tiangge_id:
+                    tiangge_id_name_dict[data['id']] = data['name']
+        return tiangge_id_name_dict
+
+    def comment_counter_in_approvals(self):
+        # returns a dict of posts' comment count
+        # specifically showing only the comments posted by the session user
+
+        i = 0
+        comment_count_dict = defaultdict(dict)
+        user_posts = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+            comment_count_dict[post['post_id']] = 0
+
+        for post_ids, counter in comment_count_dict.items():
+            post_comments = select_post_comment_with_post_id(post_ids)
+            for values in post_comments:
+                counter = counter + 1
+                comment_count_dict[post_ids] = counter
+
+        return comment_count_dict
+
+    def mask_post_id_approvals(self):
+
+        hexstr = string.ascii_letters
+        hexint = string.digits
+
+        posts_ids = defaultdict(dict)
+
+        posts_submitted = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        for post in posts_submitted:
+            hexcd_1 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
+            hexcd_2 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
+            hexcd = hexcd_1 + hexcd_2
+
+            posts_ids[post['post_id']] = hexcd
+
+        return posts_ids
+
+    def users_saved_approvals(self):
+        # returns a dictionary of a user's saved posts
+        # returns data specific to a subtiangge
+        # primarily used to track current user's saved posts
+
+        tiangge_posts_ids = defaultdict(dict)
+
+        current_user_saved_post = slct_sr_svd_pst(profile_name_to_id(self.user_name))
+        user_approvals = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        for post in user_approvals:
+
+            tiangge_posts_ids[post['post_id']] = 'Unsaved'
+
+            for user_data in current_user_saved_post:
+
+                if user_data['post_id'] == post['post_id']:
+                    tiangge_posts_ids[user_data['post_id']] = 'Saved'
+
+        return tiangge_posts_ids
+
+    def users_approvals_profile(self):
+        # returns a dictionary of a user's liked and disliked posts
+        # primarily used to track current user's liked and disliked posts
+        # ONLY USES USER ID
+
+        user_approval_dict = defaultdict(dict)
+        current_user_approval = slct_pvt_pprvl_sr(profile_name_to_id(self.user_name))
+
+        user_posts = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+        # this function takes the user's submitted posts' ids only
+        # if used for getting approvals, etc. shows ONLY the users submitted posts
+
+        for post in user_posts:
+
+            user_approval_dict[post['post_id']] = 3
+
+            for user_data in current_user_approval:
+
+                if user_data['post_id'] == post['post_id']:
+                    user_approval_dict[user_data['post_id']] = user_data['approval_type']
+
+        return user_approval_dict
+
+    def comment_counter_in_profile(self):
+        # returns a dict of posts' comment count
+        # specifically showing only the comments posted by the session user
+
+        i = 0
+        comment_count_dict = defaultdict(dict)
+        user_posts = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+            comment_count_dict[post['post_id']] = 0
+
+        for post_ids, counter in comment_count_dict.items():
+            post_comments = select_post_comment_with_post_id(post_ids)
+            for values in post_comments:
+                counter = counter + 1
+                comment_count_dict[post_ids] = counter
+
+        return comment_count_dict
+
+    def users_saved_profile(self):
+        # returns a dictionary of a user's saved posts
+        # primarily used to track current user's saved posts
+        # ONLY USES USER ID
+
+        posts_ids = defaultdict(dict)
+
+        current_user_saved_post = slct_sr_svd_pst(profile_name_to_id(self.user_name))
+        user_posts = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+
+            posts_ids[post['post_id']] = 'Unsaved'
+
+            for user_data in current_user_saved_post:
+
+                if user_data['post_id'] == post['post_id']:
+                    posts_ids[user_data['post_id']] = 'Saved'
+
+        return posts_ids
+
+    def users_hidden_profile(self):
+        # returns a dictionary of a user's saved posts
+        # primarily used to track current user's saved posts
+        # ONLY USES USER ID
+
+        user_hidden_dict = defaultdict(dict)
+        current_user_hidden_post = slct_sr_hddn_pst(profile_name_to_id(self.user_name))
+
+        user_posts = slct_pvt_hx_tngg_pst_w_sr(profile_name_to_id(self.user_name))
+
+        for post in user_posts:
+
+            user_hidden_dict[post['post_id']] = 'Unhide'
+
+            for user_data in current_user_hidden_post:
+
+                if user_data['post_id'] == post['post_id']:
+                    user_hidden_dict[user_data['post_id']] = 'Hide'
+
+        return user_hidden_dict
+
+    def mask_post_id_profile(self):
+
+        hexstr = string.ascii_letters
+        hexint = string.digits
+
+        posts_ids = defaultdict(dict)
+
+        posts_submitted = select_post_with_user_id(profile_name_to_id(self.user_name))
+
+        for post in posts_submitted:
+            hexcd_1 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
+            hexcd_2 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
+            hexcd = hexcd_1 + hexcd_2
+
+            posts_ids[post['id']] = hexcd
+
+        return posts_ids
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -41,61 +292,6 @@ def user_log():
     elif "user" not in session:
         user_logged = 'False'
     return user_logged
-
-def tiangges_in_profile(user_id):
-    # returns a dict of tiangges the current user is subscribed in
-
-    tiangge_dict = defaultdict(dict)
-    tiangge_id_name_dict = defaultdict(dict)
-
-    user_posts = slct_pvt_hx_tngg_pst_w_sr(user_id)
-
-    for post in user_posts:
-        tiangge_dict[post['tiangge_id']] = ''
-    for tiangge_id, names in tiangge_dict.items():
-        tiangge_specific = select_tiangge_with_id(tiangge_id)
-        for data in tiangge_specific:
-            if data['id'] == tiangge_id:
-                tiangge_id_name_dict[data['id']] = data['name']
-    return tiangge_id_name_dict
-
-def comment_counter_in_profile(user_id):
-    # returns a dict of posts' comment count
-    # specifically showing only the comments posted by the session user
-
-    i = 0
-    comment_count_dict = defaultdict(dict)
-    user_posts = slct_pvt_hx_tngg_pst_w_sr(user_id)
-
-    for post in user_posts:
-        comment_count_dict[post['post_id']] = 0
-
-    for post_ids, counter in comment_count_dict.items():
-        post_comments = select_post_comment_with_post_id(post_ids)
-        for values in post_comments:
-            counter = counter + 1
-            comment_count_dict[post_ids] = counter
-
-    return comment_count_dict
-
-def comment_counter_in_approvals(user_id):
-    # returns a dict of posts' comment count
-    # specifically showing only the comments posted by the session user
-
-    i = 0
-    comment_count_dict = defaultdict(dict)
-    user_posts = slct_pvt_pprvl_sr(user_id)
-
-    for post in user_posts:
-        comment_count_dict[post['post_id']] = 0
-
-    for post_ids, counter in comment_count_dict.items():
-        post_comments = select_post_comment_with_post_id(post_ids)
-        for values in post_comments:
-            counter = counter + 1
-            comment_count_dict[post_ids] = counter
-
-    return comment_count_dict
 
 def comment_counter(tiangge_name):
     # returns a dict of posts' comment count
@@ -119,47 +315,6 @@ def comment_counter(tiangge_name):
             comment_count_dict[post_ids] = counter
 
     return comment_count_dict
-
-def users_approvals_profile(user_id):
-    # returns a dictionary of a user's liked and disliked posts
-    # primarily used to track current user's liked and disliked posts
-    # ONLY USES USER ID
-
-    user_approval_dict = defaultdict(dict)
-    current_user_approval = slct_pvt_pprvl_sr(user_id)
-
-    user_posts = slct_pvt_hx_tngg_pst_w_sr(user_id)
-    # this function takes the user's submitted posts' ids only
-    # if used for getting approvals, etc. shows ONLY the users submitted posts
-
-    for post in user_posts:
-
-        user_approval_dict[post['post_id']] = 3
-
-        for user_data in current_user_approval:
-
-            if user_data['post_id'] == post['post_id']:
-                user_approval_dict[user_data['post_id']] = user_data['approval_type']
-
-    return user_approval_dict
-
-class User_Approv:
-    def __init__(self, user_approv_dict):
-        self.user_approv_dict = user_approv_dict
-
-    def user_likes(self):
-        user_likes_dict = defaultdict(dict)
-        for post_id, approval_type in self.user_approv_dict.items():
-            if approval_type == 1:
-                user_likes_dict[post_id] = approval_type
-        return user_likes_dict
-
-    def user_dislikes(self):
-        user_dislikes_dict = defaultdict(dict)
-        for post_id, approval_type in self.user_approv_dict.items():
-            if approval_type == 0:
-                user_dislikes_dict[post_id] = approval_type
-        return user_dislikes_dict
 
 class Data_to_Id:
 
@@ -190,52 +345,6 @@ class Data_to_Id:
             id_post = id_post
         return id_post
 
-
-class users_approvals_no_specific:
-    # returns a dictionary of a user's liked and disliked posts
-    # primarily used to track current user's liked and disliked posts
-    # ONLY USES USER ID
-    def __init__(self, user_id,):
-        self.user_id = user_id
-
-    def user_approved(self):
-        user_approval_dict = defaultdict(dict)
-        current_user_approval = slct_pvt_pprvl_sr(self.user_id)
-
-        user_posts = slct_pvt_pprvl_sr(self.user_id)
-
-        for post in user_posts:
-
-            user_approval_dict[post['post_id']] = 3
-
-            for user_data in current_user_approval:
-
-                if user_data['post_id'] == post['post_id']:
-                    user_approval_dict[user_data['post_id']] = user_data['approval_type']
-
-        return user_approval_dict
-
-    def user_approved_with_user_id(self):
-        # used as privilege check for posts
-        submitted_posts_dict = defaultdict(dict)
-        approved_posts_dict = defaultdict(dict)
-        user_privileges_dict = defaultdict(dict)
-
-        current_user_post_data = slct_pvt_hx_tngg_pst_w_sr(self.user_id)
-
-        for data in current_user_post_data:
-            submitted_posts_dict[data['post_id']] = data['post_id']
-        for post_ids, approval_types in self.user_approved().items():
-            approved_posts_dict[post_ids] = approval_types
-
-        for x, y in submitted_posts_dict.items():
-            for a, b in self.user_approved().items():
-                if a in submitted_posts_dict:
-                    user_privileges_dict[a] = 'Allowed'
-                else:
-                    user_privileges_dict[a] = 'Not allowed'
-        return user_privileges_dict
-
 def users_approvals(user_id, tiangge_name):
     # returns a dictionary of a user's liked and disliked posts
     # returns data specific to a subtiangge
@@ -255,48 +364,6 @@ def users_approvals(user_id, tiangge_name):
                 user_approval_dict[user_data['post_id']] = user_data['approval_type']
 
     return user_approval_dict
-
-def users_saved_profile(user_id):
-    # returns a dictionary of a user's saved posts
-    # primarily used to track current user's saved posts
-    # ONLY USES USER ID
-
-    posts_ids = defaultdict(dict)
-
-    current_user_saved_post = slct_sr_svd_pst(user_id)
-    user_posts = slct_pvt_hx_tngg_pst_w_sr(user_id)
-
-    for post in user_posts:
-
-        posts_ids[post['post_id']] = 'Unsaved'
-
-        for user_data in current_user_saved_post:
-
-            if user_data['post_id'] == post['post_id']:
-                posts_ids[user_data['post_id']] = 'Saved'
-
-    return posts_ids
-
-def users_saved_approvals(user_id):
-    # returns a dictionary of a user's saved posts
-    # returns data specific to a subtiangge
-    # primarily used to track current user's saved posts
-
-    tiangge_posts_ids = defaultdict(dict)
-
-    current_user_saved_post = slct_sr_svd_pst(user_id)
-    user_approvals = slct_pvt_pprvl_sr(user_id)
-
-    for post in user_approvals:
-
-        tiangge_posts_ids[post['post_id']] = 'Unsaved'
-
-        for user_data in current_user_saved_post:
-
-            if user_data['post_id'] == post['post_id']:
-                tiangge_posts_ids[user_data['post_id']] = 'Saved'
-
-    return tiangge_posts_ids
 
 def users_saved(user_id, tiangge_name):
     # returns a dictionary of a user's saved posts
@@ -320,27 +387,6 @@ def users_saved(user_id, tiangge_name):
 
     return tiangge_posts_ids
 
-def users_hidden_profile(user_id):
-    # returns a dictionary of a user's saved posts
-    # primarily used to track current user's saved posts
-    # ONLY USES USER ID
-
-    user_hidden_dict = defaultdict(dict)
-    current_user_hidden_post = slct_sr_hddn_pst(user_id)
-
-    user_posts = slct_pvt_hx_tngg_pst_w_sr(user_id)
-
-    for post in user_posts:
-
-        user_hidden_dict[post['post_id']] = 'Unhide'
-
-        for user_data in current_user_hidden_post:
-
-            if user_data['post_id'] == post['post_id']:
-                user_hidden_dict[user_data['post_id']] = 'Hide'
-
-    return user_hidden_dict
-
 def users_privileges(user_id):
 
     user_submitted = defaultdict(dict)
@@ -363,42 +409,6 @@ def users_privileges(user_id):
                 user_submitted[user_data['post_id']] = 'Not allowed'
 
     return "I", user_data['post_id']
-
-def mask_post_id_profile(user_id):
-
-    hexstr = string.ascii_letters
-    hexint = string.digits
-
-    posts_ids = defaultdict(dict)
-
-    posts_submitted = select_post_with_user_id(user_id)
-
-    for post in posts_submitted:
-        hexcd_1 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
-        hexcd_2 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
-        hexcd = hexcd_1 + hexcd_2
-
-        posts_ids[post['id']] = hexcd
-
-    return posts_ids
-
-def mask_post_id_approvals(user_id):
-
-    hexstr = string.ascii_letters
-    hexint = string.digits
-
-    posts_ids = defaultdict(dict)
-
-    posts_submitted = slct_pvt_pprvl_sr(user_id)
-
-    for post in posts_submitted:
-        hexcd_1 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
-        hexcd_2 = ''.join(random.choice(hexstr) for i in range(2)).join(random.choice(hexint) for i in range(2))
-        hexcd = hexcd_1 + hexcd_2
-
-        posts_ids[post['post_id']] = hexcd
-
-    return posts_ids
 
 def mask_post_id_(tiangge_name):
 
@@ -426,9 +436,17 @@ def mask_post_id_(tiangge_name):
 
 @app.route('/')
 def index():
-    login_block = ["login_block.html", "in_session_block.html"]
-    tiangges = select_tiangge()
-    return render_template('base.html', login_block=login_block, tiangges=tiangges, )
+    algo = 'FALSE'
+    if algo != 'FALSE':
+        login_block = ["login_block.html", "in_session_block.html"]
+        tiangges = select_tiangge()
+        return render_template('base.html', login_block=login_block, tiangges=tiangges, )
+    else:
+        if 'user' in session:
+            return redirect(url_for('tiangge_list'))
+        else:
+            return redirect(url_for('login'))
+
 
 @app.route('/test_process', methods=['POST'])
 def test_process():
@@ -450,30 +468,17 @@ def profile_name_to_id(profile_name):
 def profile_submitted(profile_name):
 
     user_logged = user_log()
-    user_profile_id = profile_name_to_id(profile_name)
-
-    user_tiangges = slct_sr_tngg(user_profile_id)
-    profile_data = select_users_specific(profile_name)
 
     # main content
-    posts_submitted = select_post_with_user_id(user_profile_id)
+    profile_data = Profile_Data(profile_name)
+    posts_submitted = select_post_with_user_id(profile_data.profile_name_to_id()['id'])
+    user_mask = profile_data.mask_post_id_profile()
 
     # content checker
     if bool(posts_submitted) == True:
         submit_content = 'True'
     else :
         submit_content = 'False'
-
-    user_approval = users_approvals_profile(user_profile_id)
-    comment_count = comment_counter_in_profile(user_profile_id)
-    user_saved = users_saved_profile(user_profile_id)
-    tiangge_data = tiangges_in_profile(user_profile_id)
-    user_hidden = users_hidden_profile(user_profile_id)
-    user_masked = mask_post_id_profile(user_profile_id)
-
-    session['user_approval'] = user_approval
-    session['user_saved'] = user_saved
-    session['user_hidden'] = user_hidden
 
     if user_logged == 'False':
         post_user_privileges = 'Not allowed'
@@ -484,100 +489,67 @@ def profile_submitted(profile_name):
         else:
             post_user_privileges = 'Not allowed'
 
-    return render_template('/profiles/submitted.html', profile_data=profile_data, user_tiangges=user_tiangges,
-                           posts_submitted=posts_submitted, user_approval=user_approval, comment_count=comment_count,
-                           user_saved=user_saved, user_logged=user_logged,
-                           tiangge_data=tiangge_data, user_profile_id=user_profile_id, profile_name=profile_name,
-                           user_hidden=user_hidden, post_user_privileges=post_user_privileges, submit_content=submit_content,
+    return render_template('/profiles/submitted.html', profile_data=profile_data,
+                           posts_submitted=posts_submitted, user_logged=user_logged,
+                           profile_name=profile_name, post_user_privileges=post_user_privileges, submit_content=submit_content,
                            legal_extensions_img=legal_extensions_img, legal_extensions_vid=legal_extensions_vid,
-                           user_masked=user_masked)
+                           user_mask=user_mask)
 
 @app.route('/u/<profile_name>/liked')
 def profile_liked(profile_name):
 
-    user_profile_id = profile_name_to_id(session['user'])
-
-    user_tiangges = slct_sr_tngg(user_profile_id)
-    profile_data = select_users_specific(profile_name)
-
-    # main content
-    posts_liked = select_post_approval_with_user_id(user_profile_id)
-
-    # content checker
-    if bool(posts_liked) == True:
-        liked_content = 'True'
-    else :
-        liked_content = 'False'
-
-    profile_data = select_users_specific(profile_name)
-
-    user_tiangges = slct_sr_tngg(user_profile_id)
-    user_approval_data = users_approvals_no_specific(user_profile_id)
-    user_approval = user_approval_data.user_approved()
-    user_approval_with_id = user_approval_data.user_approved_with_user_id()
-    tiangge_data = tiangges_in_profile(user_profile_id)
-    user_privileges = users_privileges(user_profile_id)
-    post_comments = comment_counter_in_approvals(user_profile_id)
-    user_masked = mask_post_id_approvals(user_profile_id)
-    user_saved = users_saved_approvals(user_profile_id)
-
-    class_user_approvals = User_Approv(user_approval)
-    user_likes = class_user_approvals.user_likes()
-
     user_logged = user_log()
 
+    if user_logged == 'True':
 
-    return render_template('/profiles/liked.html', profile_data=profile_data, user_tiangges=user_tiangges,
-                           user_approval=user_approval, user_logged=user_logged,
-                           user_saved=user_saved, posts_liked=posts_liked, user_masked=user_masked,
-                           user_likes=user_likes, tiangge_data=tiangge_data, liked_content=liked_content,
-                           user_profile_id=user_profile_id, legal_extensions_img=legal_extensions_img,
-                           legal_extensions_vid=legal_extensions_vid, user_privileges=user_privileges,
-                           user_approval_with_id=user_approval_with_id, post_comments=post_comments,
-                           )
+        # main content
+        profile_data = Profile_Data(profile_name)
+        posts_liked = select_post_approval_with_user_id(profile_data.profile_name_to_id()['id'])
+        user_mask = profile_data.mask_post_id_approvals()
+
+        # content checker
+        if bool(posts_liked) == True:
+            liked_content = 'True'
+        else :
+            liked_content = 'False'
+
+        return render_template('/profiles/liked.html', profile_data=profile_data, user_logged=user_logged,
+                               posts_liked=posts_liked, liked_content=liked_content,
+                               legal_extensions_img=legal_extensions_img, legal_extensions_vid=legal_extensions_vid,
+                               user_mask=user_mask)
+    else:
+        visited_profile = request.referrer
+        visited_profile_split = visited_profile.strip("/liked")
+
+        return redirect(visited_profile_split)
 
 @app.route('/u/<profile_name>/disliked')
 def profile_disliked(profile_name):
 
-    user_profile_id = profile_name_to_id(session['user'])
-
-    user_tiangges = slct_sr_tngg(user_profile_id)
-    profile_data = select_users_specific(profile_name)
-
-    # main content
-    posts_disliked = select_post_approval_with_user_id(user_profile_id)
-
-    # content checker
-    if bool(posts_disliked) == True:
-        disliked_content = 'True'
-    else :
-        disliked_content = 'False'
-
-    profile_data = select_users_specific(profile_name)
-
-    user_tiangges = slct_sr_tngg(user_profile_id)
-    user_approval_data = users_approvals_no_specific(user_profile_id)
-    user_approval = user_approval_data.user_approved()
-    user_approval_with_id = user_approval_data.user_approved_with_user_id()
-    tiangge_data = tiangges_in_profile(user_profile_id)
-    user_privileges = users_privileges(user_profile_id)
-    post_comments = comment_counter_in_approvals(user_profile_id)
-    user_masked = mask_post_id_approvals(user_profile_id)
-    user_saved = users_saved_approvals(user_profile_id)
-
-    class_user_approvals = User_Approv(user_approval)
-    user_likes = class_user_approvals.user_likes()
-
     user_logged = user_log()
 
-    return render_template('/profiles/disliked.html', profile_data=profile_data, user_tiangges=user_tiangges,
-                           user_approval=user_approval, user_logged=user_logged,
-                           user_saved=user_saved, posts_disliked=posts_disliked, user_masked=user_masked,
-                           user_likes=user_likes, tiangge_data=tiangge_data, disliked_content=disliked_content,
-                           user_profile_id=user_profile_id, legal_extensions_img=legal_extensions_img,
-                           legal_extensions_vid=legal_extensions_vid, user_privileges=user_privileges,
-                           user_approval_with_id=user_approval_with_id, post_comments=post_comments,
-                           )
+    if user_logged == 'True':
+
+        # main content
+        profile_data = Profile_Data(profile_name)
+        posts_disliked = select_post_approval_with_user_id(profile_data.profile_name_to_id()['id'])
+        user_mask = profile_data.mask_post_id_approvals()
+
+        # content checker
+        if bool(posts_disliked) == True:
+            disliked_content = 'True'
+        else :
+            disliked_content = 'False'
+
+        return render_template('/profiles/disliked.html', profile_data=profile_data, user_logged=user_logged,
+                               posts_disliked=posts_disliked, disliked_content=disliked_content,
+                               legal_extensions_img=legal_extensions_img, legal_extensions_vid=legal_extensions_vid,
+                               user_mask=user_mask)
+    else:
+        visited_profile = request.referrer
+        visited_profile_split = visited_profile.strip("/disliked")
+
+        return redirect(visited_profile_split)
 
 @app.route('/u/<profile_name>/saved')
 def profile_saved(profile_name):
