@@ -132,7 +132,7 @@
                                 {% for posts in posts_submitted|reverse %}
                                     <div class="row p-2">
                                         <div class="col-2 p-1 py-2">
-                                            {% if user_logged == 'True' %}
+                                            {% if user_logged %}
                                                 {% for id, name in profile_data.tiangges_in_profile().items() %}
                                                     {% if posts.tiangge_id == id %}
                                                         {% for post_id, approval_type in profile_data.users_approvals_profile().items() %}
@@ -235,7 +235,7 @@
                                                         {% endfor %}
                                                     {% endif %}
                                                 {% endfor %}
-                                            {% elif user_logged == 'False' %}
+                                            {% elif not user_logged %}
                                                 <div class="gap-2">
                                                     <div class="row p-1">
                                                         <div class="col-12 col-sm-4">
@@ -491,7 +491,7 @@
                                             {% endfor %}
 
                                             <div class="col-auto text-underline-hover p-1">
-                                                {% if user_logged == 'True' %}
+                                                {% if user_logged%}
                                                     {% for post_ids, saved in profile_data.users_saved_profile().items() %}
                                                         {% if posts.id == post_ids %}
                                                             {% if saved == 'Saved' %}
@@ -536,7 +536,7 @@
                                                             {% endif %}
                                                         {% endif %}
                                                     {% endfor %}
-                                                {% elif user_logged == 'False' %}
+                                                {% elif not user_logged %}
                                                     <button type="submit" value="Save" class="btn btn-outline-success btn-sm-super" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
                                                         <span aria-hidden="true">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
@@ -551,7 +551,7 @@
                                                 {% endif %}
                                             </div>
                                             <div class="col-auto p-1">
-                                                {% if user_logged == 'True' %}
+                                                {% if user_logged %}
                                                     {% if user_hidden %}
                                                         {% for post_ids, hidden in profile_data.users_hidden_profile().items() %}
                                                             {% if posts.id == post_ids %}
@@ -617,7 +617,7 @@
                                                             </button>
                                                         </form>
                                                     {% endif %}
-                                                {% elif user_logged == 'False' %}
+                                                {% elif not user_logged %}
                                                     <button value="Hide" class="btn btn-outline-secondary btn-sm-super"  type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
                                                         <span aria-hidden="true">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
@@ -633,7 +633,7 @@
                                             </div>
 
                                             <div class="col-auto p-1">
-                                                {% if user_logged == 'True' %}
+                                                {% if user_logged %}
                                                 <button class="btn btn-outline-danger btn-sm-super" type="button" data-bs-toggle="modal" data-bs-target="#myModal_{{posts.hex_cd}}">
                                                 {% else %}
                                                 <button class="btn btn-outline-danger btn-sm-super" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
@@ -828,6 +828,18 @@
     </div>
 </div>
 
+<footer class="footer mt-auto bg-transparent py-3">
+  <div class="container border-top">
+    <div class="col-md-4 d-flex align-items-center ">
+      <a href="{{url_for('index')}}" method="get" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shop-window" viewBox="0 0 16 16">
+          <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zm2 .5a.5.5 0 0 1 .5.5V13h8V9.5a.5.5 0 0 1 1 0V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+      </a>
+      <span class="mb-3 mb-md-0 text-muted">Tianggeddit © 2022 </span>
+    </div>
+  </div>
+</footer>
 {% endblock %}
 
 

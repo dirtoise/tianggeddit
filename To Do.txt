@@ -1,6 +1,6 @@
 PROFILE FUNCTIONS:
-	Make liking, disliking, saving, hiding based on when it was done instead of when the post was made.
+	(May or may not be Done) Make liking, disliking, saving, hiding based on when it was done instead of when the post was made.
+	(Not done) Fix arrangement of items based on function date action above
 
-HIDING:
-	Fix hiding function
-
+PRIVILEGES:
+	Add mod privileges

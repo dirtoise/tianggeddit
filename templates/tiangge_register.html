@@ -5,6 +5,8 @@
 <form action="{{url_for('tiangge_process')}}" method="post">
     <div>
         <p><input type="text" name="name" placeholder="Tiangge name" required> </p>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
     </div>
     <div>
        <input type="submit" value="Make Tiangge">

@@ -119,10 +119,12 @@ def insert_tiangge(tiangge_data):
 
 def insert_pivot_user_tiangge(pivot_data):
     conn, cur = connect_db(db_path)
-    query = 'INSERT INTO pvt_user_tiangge (user_id, tiangge_id) VALUES (?, ?)'
+    query = 'INSERT INTO pvt_user_tiangge (user_id, tiangge_id, is_subscriber, is_moderator) VALUES (?, ?, ?, ?)'
     values = (
         pivot_data['user_id'],
         pivot_data['tiangge_id'],
+        pivot_data['is_subscriber'],
+        pivot_data['is_moderator'],
     )
     cur.execute(query, values)
     conn.commit()
@@ -174,7 +176,7 @@ def slct_pvt_pprvl_tngg_pst(tiangge_id):
 
 def slct_pvt_pprvl_sr(user_id):
     conn, cur = connect_db(db_path)
-    query = 'SELECT * FROM pvt_approval_user WHERE user_id = ?'
+    query = 'SELECT * FROM pvt_approval_user WHERE user_id = ? ORDER BY date_approval ASC'
     results = cur.execute(query, (user_id, )).fetchall()
     return results
 
@@ -287,6 +289,42 @@ def select_post_approval_with_user_id(user_id,):
     results = cur.execute(query, (user_id,)).fetchall()
     return results
 
+def select_post_saved_with_user_id(user_id,):
+    conn, cur = connect_db(db_path)
+    query = 'SELECT DISTINCT pvt_saved_post_user.user_id, pvt_saved_post_user.post_id,\
+            posts.title, hex.hex_cd, posts.content,\
+            posts.content_type, posts.date_created, users.username,\
+            posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
+            FROM pvt_saved_post_user\
+            INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
+            INNER JOIN hex\
+            ON pvt_saved_post_user.post_id = posts.id AND posts.id = pvt_hex_tiangge_post.post_id AND\
+            pvt_hex_tiangge_post.tiangge_id = tiangges.id AND pvt_hex_tiangge_post.user_id = users.id\
+            AND pvt_hex_tiangge_post.hex_id = hex.id\
+            WHERE\
+            pvt_saved_post_user.user_id = ?'
+    cur.execute(query, (user_id,))
+    results = cur.execute(query, (user_id,)).fetchall()
+    return results
+
+def select_hidden_post_with_user_id(user_id,):
+    conn, cur = connect_db(db_path)
+    query = 'SELECT DISTINCT pvt_hidden_post_user.user_id, pvt_hidden_post_user.post_id,\
+            posts.title, hex.hex_cd, posts.content,\
+            posts.content_type, posts.date_created, users.username,\
+            posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
+            FROM pvt_hidden_post_user\
+            INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
+            INNER JOIN hex\
+            ON pvt_hidden_post_user.post_id = posts.id AND posts.id = pvt_hex_tiangge_post.post_id AND\
+            pvt_hex_tiangge_post.tiangge_id = tiangges.id AND pvt_hex_tiangge_post.user_id = users.id\
+            AND pvt_hex_tiangge_post.hex_id = hex.id\
+            WHERE\
+            pvt_hidden_post_user.user_id = ?'
+    cur.execute(query, (user_id,))
+    results = cur.execute(query, (user_id,)).fetchall()
+    return results
+
 def select_post_with_user_id(user_id):
     conn, cur = connect_db(db_path)
     query = 'SELECT DISTINCT posts.id, posts.title, posts.date_created, posts.user_id,\
@@ -305,7 +343,8 @@ def select_post_with_tiangge(tiangge_id):
     conn, cur = connect_db(db_path)
     query = 'SELECT DISTINCT posts.id, posts.title, posts.date_created, posts.user_id,\
             users.username, hex.hex_cd, pvt_hex_tiangge_post.tiangge_id,\
-            posts.total, posts.like, posts.dislike, posts.content, posts.date_created\
+            posts.total, posts.like, posts.dislike, posts.content, posts.content_type,\
+            posts.date_created\
             FROM posts\
             INNER JOIN pvt_hex_tiangge_post INNER JOIN hex INNER JOIN users \
             ON posts.id = pvt_hex_tiangge_post.post_id AND\
@@ -473,11 +512,12 @@ def insert_pvt_approval_tiangge_post(pvt_approval_tiangge_post_data):
 
 def insert_pvt_approval_user(pvt_approval_data):
     conn, cur = connect_db(db_path)
-    query = 'INSERT INTO pvt_approval_user (user_id, post_id, approval_type) VALUES (?, ?, ?)'
+    query = 'INSERT INTO pvt_approval_user (user_id, post_id, approval_type, date_approval) VALUES (?, ?, ?, ?)'
     values = (
         pvt_approval_data['user_id'],
         pvt_approval_data['post_id'],
         pvt_approval_data['approval_type'],
+        pvt_approval_data['date_approval'],
     )
     cur.execute(query, values)
     conn.commit()
@@ -506,9 +546,10 @@ def update_post_approval(approval_data):
 
 def update_pvt_approval_user(pvt_approval_data):
     conn, cur = connect_db(db_path)
-    query = 'UPDATE pvt_approval_user SET approval_type = ? WHERE user_id = ? AND post_id = ?'
+    query = 'UPDATE pvt_approval_user SET approval_type = ?, date_approval = ? WHERE user_id = ? AND post_id = ?'
     values = (
         pvt_approval_data['approval_type'],
+        pvt_approval_data['date_approval'],
         pvt_approval_data['user_id'],
         pvt_approval_data['post_id'],
     )
@@ -569,19 +610,20 @@ def select_specific_comment(comment, date_created, post_id, tiangge_id):
     results = cur.execute(query, (comment, date_created, post_id, tiangge_id)).fetchall()
     return results
 
-def slct_sr_svd_pst(user_id):
+def slct_pvt_svd_pst_sr(user_id):
     conn, cur = connect_db(db_path)
-    query = 'SELECT * FROM pvt_saved_post_user WHERE user_id = ?'
+    query = 'SELECT * FROM pvt_saved_post_user WHERE user_id = ? ORDER BY date_saved DESC'
     results = cur.execute(query, (user_id,)).fetchall()
     return results
 
 def insert_pvt_saved_post_user(pvt_data):
     conn, cur = connect_db(db_path)
-    query = 'INSERT INTO pvt_saved_post_user (tiangge_id, post_id, user_id) VALUES ( ?, ?, ?)'
+    query = 'INSERT INTO pvt_saved_post_user (tiangge_id, post_id, user_id, date_saved) VALUES ( ?, ?, ?, ?)'
     values = (
         pvt_data['tiangge_id'],
         pvt_data['post_id'],
         pvt_data['user_id'],
+        pvt_data['date_saved'],
     )
     cur.execute(query, values)
     conn.commit()
@@ -594,19 +636,20 @@ def delete_pvt_saved_post_user(user_id, post_id):
     conn.commit()
     conn.close()
 
-def slct_sr_hddn_pst(user_id):
+def slct_pvt_hddn_pst_sr(user_id):
     conn, cur = connect_db(db_path)
-    query = 'SELECT * FROM pvt_hidden_post_user WHERE user_id = ?'
+    query = 'SELECT * FROM pvt_hidden_post_user WHERE user_id = ? ORDER BY date_hidden DESC'
     results = cur.execute(query, (user_id,)).fetchall()
     return results
 
 def insert_pvt_hidden_post_user(pvt_data):
     conn, cur = connect_db(db_path)
-    query = 'INSERT INTO pvt_hidden_post_user (tiangge_id, post_id, user_id) VALUES ( ?, ?, ?)'
+    query = 'INSERT INTO pvt_hidden_post_user (tiangge_id, post_id, user_id, date_hidden) VALUES (?, ?, ?, ?)'
     values = (
         pvt_data['tiangge_id'],
         pvt_data['post_id'],
         pvt_data['user_id'],
+        pvt_data['date_hidden'],
     )
     cur.execute(query, values)
     conn.commit()
