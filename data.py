@@ -691,3 +691,41 @@ def insert_pvt_post_report(pvt_data):
     cur.execute(query, values)
     conn.commit()
     conn.close()
+
+def slct_pvt_sr_sr_thr(user_id, user_id_other):
+    conn, cur = connect_db(db_path)
+    query = 'SELECT * FROM pvt_user_user_other WHERE user_id = ? AND user_id_other = ? ORDER BY date_other DESC'
+    results = cur.execute(query, (user_id, user_id_other, )).fetchall()
+    return results
+
+def insert_pvt_sr_sr_other(pvt_data):
+    conn, cur = connect_db(db_path)
+    query = 'INSERT INTO pvt_user_user_other (user_id, user_id_other, user_relationship, date_other) VALUES (?, ?, ?, ?)'
+    values = (
+        pvt_data['user_id'],
+        pvt_data['user_id_other'],
+        pvt_data['user_relationship'],
+        pvt_data['date_other'],
+    )
+    cur.execute(query, values)
+    conn.commit()
+    conn.close()
+
+def update_pvt_sr_sr_other(pvt_data):
+    conn, cur = connect_db(db_path)
+    query = 'UPDATE pvt_user_user_other SET user_relationship = ? WHERE user_id = ? AND user_id_other = ?'
+    values = (
+        pvt_data['user_relationship'],
+        pvt_data['user_id'],
+        pvt_data['user_id_other'],
+    )
+    cur.execute(query, values)
+    conn.commit()
+    conn.close()
+
+def delete_pvt_sr_sr_other(user_id, user_id_other):
+    conn, cur = connect_db(db_path)
+    query = 'DELETE FROM pvt_user_user_other WHERE user_id = ? AND user_id_other = ? '
+    cur.execute(query, (user_id, user_id_other,))
+    conn.commit()
+    conn.close()

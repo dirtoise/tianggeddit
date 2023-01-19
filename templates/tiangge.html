@@ -12,7 +12,36 @@
                 <div class="col-sm-1"></div>
                 <img src="{{ tiangge_data.data_tiangge_icon() }}" class="col-sm-2" style="max-width:11%;">
                 <div class="col-sm-9">
-                    <h1 class="py-1"><span class="card-title badge rounded-pill bg-white text-dark">{{ tiangge_name }}</span></h1>
+                    <div class="row">
+
+                    <div class="col-sm-auto">
+                        <h1>
+                            <span class="card-title badge rounded-pill bg-white text-dark">{{ tiangge_name }}</span>
+                        </h1>
+                    </div>
+                    <div class="col-sm-auto mt-3">
+                        <span>
+                            <form action="{{ url_for('subscribe_process', name=tiangge_name) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="text" name="name" value="{{tiangge_name }}" hidden readonly>
+                                {% if user_logged %}
+                                    {% if not profile_data.user_sub_privileges(tiangge_data.tiangge_name_to_id()['id']) %}
+                                        <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
+                                        <button type="submit" class="btn btn-primary btn-sm badge rounded-pill">Subscribe</button>
+                                    {% else %}
+                                        <input type="text" name="subscribe_process" value="unsubscribe" hidden readonly>
+                                        <button type="submit" class="btn btn-danger btn-sm badge rounded-pill">Unsubscribe</button>
+                                    {% endif %}
+                                {% else %}
+                                    <form action="{{ url_for('login',) }}" method="get">
+                                        <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
+                                        <button type="submit" class="btn btn-primary btn-sm badge rounded-pill">Subscribe</button>
+                                    </form>
+                                {% endif %}
+                            </form>
+                        </span>
+                    </div>
+                    </div>
                     <h7><span class="card-text badge rounded-pill bg-secondary text-white">t/ {{ tiangge_name }}</span></h7>
                 </div>
             </div>
@@ -70,7 +99,6 @@
 
                 </div>
             </div>
-
             <div class="container gap-2 border rounded bg-light pt-3">
                 {% for post in tiangge_posts|reverse %}
                     <div class="row">
@@ -262,11 +290,42 @@
                                               </button>
                                             </div>
                                         {% endif %}
+
                                     <div class="col-auto pt-2">
                                         <p class="fs-7 "> Submitted {{post.date_created}} by
-                                            <a href="{{url_for('profile_submitted', profile_name=post.username)}}" class="link-primary text-underline-hover">
-                                                {{post.username}}
-                                            </a>
+                                            {% if session['user'] != post.username %}
+                                                <a href="{{url_for('profile_submitted', profile_name=post.username)}}" class="link-primary text-underline-hover">
+                                                    {{post.username}}
+                                                </a>
+                                                <form action="{{ url_for('interact_user_process',) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}"/>
+                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}"/>
+                                                    {% if tiangge_data.tiangge_user_user_others(post.username)['relationship'] == "followed" %}
+                                                        <input type="hidden" name="user_relationship" value="unfollowed"/>
+                                                        <button type="submit" class="btn btn-primary btn-sm badge rounded-pill">Unfollow user</button>
+                                                    {% else %}
+                                                        <input type="hidden" name="user_relationship" value="followed"/>
+                                                        <button type="submit" class="btn btn-primary btn-sm badge rounded-pill">Follow user</button>
+                                                    {% endif %}
+                                                </form>
+                                                <form action="{{ url_for('interact_user_process',) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}"/>
+                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}"/>
+                                                    {% if not tiangge_data.tiangge_user_user_others(post.username)['relationship'] == "blocked" %}
+                                                        <input type="hidden" name="user_relationship" value="blocked"/>
+                                                        <button type="submit" class="btn btn-danger btn-sm badge rounded-pill">Block user</button>
+                                                    {% else %}
+                                                        <input type="hidden" name="user_relationship" value="unblocked"/>
+                                                        <button type="submit" class="btn btn-secondary btn-sm badge rounded-pill">Unblock user</button>
+                                                    {% endif %}
+                                                </form>
+                                            {% else %}
+                                                <a href="{{url_for('profile_submitted', profile_name=post.username)}}" class="link-primary text-underline-hover">
+                                                    {{post.username}}
+                                                </a>
+                                            {% endif %}
                                         </p>
                                     </div>
                                     <div class="collapse multi-collapse" id="multiCollapseExample_{{mask}}">
@@ -689,61 +748,98 @@
                 {% endfor %}
             </div>
         </div>
-        <div class=" col-sm-4">
-            <div>
+        <div class="col-sm-4">
+            <div class="pt-3">
+                <div class="card">
+                  <div class="card-header ">
+                    <div class="row">
+                        <div class="col-sm-auto">
+                        About the Tiangge
+                        </div>
+                        <div class="col-sm-auto">
+                        <form action="{{ url_for('tiangge_delete') }}" method="post">
+                            <input type="number" name="id" value="{{tiangge_data.tiangge_name_to_id()['id']}}" hidden readonly>
+                            <button type="submit" class="btn btn-danger btn-sm badge rounded-pill">Delete t/{{tiangge_name }}</button>
+                        </form>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <h6 class="card-title">Welcome to {{tiangge_name}}</h6>
+                    <p class="card-text"> Date created: {{tiangge_data.data_tiangge_date_created()}}</p>
+                    <div class="my-3 border-bottom"></div>
+                    <p class="card-text">
+                          {{tiangge_data.data_tiangge_subscribers()}}
+                  </div>
+
+                </div>
+            </div>
+
+            <div class="py-2">
                 {% if user_logged %}
                     {% include 'sidebar.html' %}
                 {% else %}
                 {{skip}}
                 {% endif %}
             </div>
-            <div class=" position-relative text-center gap-2 border rounded ">
-                <div class="p-2">
-                    <p class="fs-3">
-                        {{tiangge_name}}
-                    </p>
 
-                    <div class="p-2">
-                            <form action="{{ url_for('subscribe_process', name=tiangge_name) }}" method="post">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <input type="text" name="name" value="{{tiangge_name }}" hidden readonly>
-                                {% if user_logged %}
-                                    {% if not profile_data.user_sub_privileges(tiangge_data.tiangge_name_to_id()['id']) %}
-                                        <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
-                                        <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
-                                    {% else %}
-                                        <input type="text" name="subscribe_process" value="unsubscribe" hidden readonly>
-                                        <button type="submit" class="btn btn-danger btn-sm">Unsubscribe</button>
-                                    {% endif %}
-                                {% else %}
-                                    {{ skip }}
-                                {% endif %}
-                        </form>
+            <div class="py-2">
+                  <div class="card card-header ">
+                    t/{{tiangge_name}} Rules
+                  </div>
+                  <div class="border-top-0">
+                    <div class="accordion" id="accordionExample">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Rule #1
+                          </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+                          <div class="accordion-body">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vel nulla ac purus auctor eleifend.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Rule #2
+                          </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo">
+                          <div class="accordion-body">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vel nulla ac purus auctor eleifend.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Rule #3
+                          </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree">
+                          <div class="accordion-body">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vel nulla ac purus auctor eleifend.
+                          </div>
+                        </div>
+                      </div>
                     </div>
-
-                    <div>
-                        <form action="{{ url_for('login',) }}" method="get">
-                            {% if not user_logged %}
-                                <input type="text" name="subscribe_process" value="subscribe" hidden readonly>
-                                <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
-                            {% endif %}
-                        </form>
-                        <form action="{{ url_for('tiangge_delete') }}" method="post">
-                            <input type="number" name="id" value="{{tiangge_data.tiangge_name_to_id()['id']}}" hidden readonly>
-                            <button type="submit" class="btn btn-danger btn-sm">Delete t/{{tiangge_name }}</button>
-                        </form>
-                    </div>
-
-                    <p class="fs-6">
-                        Welcome to <a href="{{ url_for('tiangge', name=tiangge_name) }}" class="text-decoration-none"> t/{{tiangge_name}}</a>!
-                    </p>
-
-                </div>
-                    <!-- Add table column: tiangge_about that adds information about the tiangge-->
-                    <p class="fs-7">
-                        Sub-Tiangge rules:
-                    </p>
+                  </div>
             </div>
+
+            <div class="py-2">
+                  <div class="card ">
+                      <div class="card-header">
+                            Moderator List
+                      </div>
+                      <div class="card-body">
+                          Yes
+                      </div>
+                  </div>
+            </div>
+
         </div>
     </div>
 

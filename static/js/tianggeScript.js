@@ -84,7 +84,6 @@ function select_collapse_Function() {
 }
 
 function video_player_Function(mask) {
-
     const video_id = document.getElementById("video_" + mask);
     const content_collapse = document.getElementById("multiCollapseExample_" + mask);
     const icon_change = document.getElementById("video_svg_" + mask);

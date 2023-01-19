@@ -24,6 +24,11 @@ app.config['upload_folder'] = upload_folder
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1000 * 1000
 csrf = CSRFProtect(app)
 
+def username_to_id(user_name):
+    user_data = username_id_grab(user_name)
+    for id in user_data:
+        id = id
+    return id
 
 # GOAL: Make a class function that contains all the information from sql.
 # It must be able to call data from the class that the website/user requires
@@ -509,6 +514,31 @@ class Tiangge_Data:
         for icon in tiangge_data:
             return icon['icon']
 
+    def data_tiangge_date_created(self):
+        tiangge_data = select_tiangge_with_id(self.tiangge_name_to_id()['id'])
+        for date_created in tiangge_data:
+            date_create = datetime.strptime(date_created['date_created'], '%a %b %d %Y %X').strftime('%b %d %Y')
+        return date_create
+
+    def data_tiangge_subscribers(self):
+        subscriber_count = 0
+        tiangge_data = select_tiangge_with_id(self.tiangge_name_to_id()['id'])
+        for subscribers in tiangge_data:
+            subscriber_count = subscribers['subscribers']
+        if subscriber_count > 1:
+            subscriber_count = str(subscriber_count) + " subscribers"
+            return subscriber_count
+        elif subscriber_count == 1 or subscriber_count == 0:
+            subscriber_count = str(subscriber_count) + " subscriber"
+            return subscriber_count
+
+    def tiangge_user_user_others(self, other_username):
+        user_relationships = defaultdict(dict)
+        user_data = slct_pvt_sr_sr_thr(username_to_id(session['user']), username_to_id(other_username))
+        for data in user_data:
+            user_relationships['relationship'] = data['user_relationship']
+        return user_relationships
+
     def user_hidden(self, session_user):
         self.session_user = session_user
         user_hidden_dict = defaultdict(dict)
@@ -524,6 +554,7 @@ class Tiangge_Data:
                     user_hidden_dict[user_data['post_id']] = 'Hidden'
 
         return user_hidden_dict
+
 
     def post_data_in_tiangge(self):
 
@@ -659,7 +690,6 @@ def comment_counter(tiangge_name):
 
 
 class Data_to_Id:
-
     def __init__(self, data, ):
         self.data = data
 
@@ -1555,6 +1585,27 @@ def report_post_process():
                 'report_id': report_id,
             }
             insert_pvt_post_report(pvt_data)
+
+    return redirect(request.referrer)
+
+@app.route('/interact_user_process', methods=['POST'])
+def interact_user_process():
+
+    user_id = username_to_id(request.form['interacting_user'])
+    user_id_other = username_to_id(request.form['interacted_user'])
+    pvt_data = {
+        'user_id': user_id,
+        'user_id_other': user_id_other,
+        'user_relationship': request.form['user_relationship'],
+        'date_other': datetime.now().strftime('%a %b %d %Y %X'),
+    }
+    if request.form['user_relationship'] == "followed" or request.form['user_relationship'] == "blocked":
+        if not slct_pvt_sr_sr_thr(user_id, user_id_other):
+            insert_pvt_sr_sr_other(pvt_data)
+        else:
+            update_pvt_sr_sr_other(pvt_data)
+    elif request.form['user_relationship'] == "unfollowed" or request.form['user_relationship'] == "unblocked":
+        delete_pvt_sr_sr_other(user_id, user_id_other)
 
     return redirect(request.referrer)
 
