@@ -14,7 +14,7 @@
                         {% for post in posts %}
                             {% if post.id == post_id %}
                                 {% if user_logged == 'True' %}
-                                    <form action="{{ url_for('cntnt_pprvl_process', name=name, title=post.title, hexcd=post.hex_cd)}}" method="post">
+                                    <form action="{{ url_for('approve_post_process')}}" method="post">
                                         <input  type="text" name="tiangge_name" value="{{name}}" hidden readonly>
                                         <input type="number" name="approval_like" value="{{post.like}}" hidden readonly>
                                         <input  type="number" name="approval_dislike" value="{{post.dislike}}" hidden readonly>

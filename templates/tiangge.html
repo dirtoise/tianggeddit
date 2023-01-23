@@ -104,115 +104,117 @@
                     <div class="row">
                         <div class="col-2 py-2 ">
                             {% if user_logged %}
-                                <form action="{{ url_for('cntnt_pprvl_process', name=tiangge_name, title=post.title, hexcd=post.hex_cd)}}" method="post">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <form action="{{ url_for('approve_post_process', name=tiangge_name, title=post.title, hexcd=post.hex_cd)}}" method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" readonly/>
                                     <input type="text" name="tiangge_name" value="{{tiangge_name }}" hidden readonly>
                                     <input type="number" name="approval_like" value="{{ post.like }}" hidden readonly>
                                     <input type="number" name="approval_dislike" value="{{ post.dislike }}" hidden readonly>
+                                    <input type="number" name="approval_total" value="{{ post.total }}" hidden readonly>
                                     <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
                                     <input type="text" name="interacting_username" value="{{ session.user }}" hidden readonly>
                                     <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
                                     <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
                                         <div class="gap-2">
-                                            {% for post_id, approval_type in approvals_again.items() %}
-                                                {% if post_id == post.id %}
-                                                    {% if approval_type == 1 %}
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approve">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                                                                      <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-                                                            <div class="col-6 fs-8 my-2">
-                                                                {{post.like}}
-                                                            </div>
+                                            {% if tiangge_data.tiangge_user_approvals(session['user'], post.id) %}
+                                                {% if tiangge_data.tiangge_user_approvals(session['user'], post.id)['approval_type'] == "approved" %}
+                                                    <input type="text" name="approval_type" value="approved" hidden readonly>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approved">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                                                  <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 fs-8 my-2">
+                                                            {{post.like}}
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        &nbsp
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapproved">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
+                                                                  <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
+                                                                </svg>
+                                                            </button>
                                                         </div>
 
-                                                        <div class="row">
-                                                            &nbsp
+                                                        <div class="col-6 fs-8 my-2">
+                                                            {{post.dislike}}
+                                                        </div>
+                                                    </div>
+                                                {% elif tiangge_data.tiangge_user_approvals(session['user'], post.id)['approval_type'] == "disapproved" %}
+                                                    <input type="text" name="approval_type" value="disapproved" hidden readonly>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approved">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-6 fs-8 my-2 ">
+                                                            {{post.like}}
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        &nbsp
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapproved">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak-fill" viewBox="0 0 16 16">
+                                                                  <path fill-rule="evenodd" d="M8.931.586 7 3l1.5 4-2 3L8 15C22.534 5.396 13.757-2.21 8.931.586ZM7.358.77 5.5 3 7 7l-1.5 3 1.815 4.537C-6.533 4.96 2.685-2.467 7.358.77Z"/>
+                                                                </svg>
+                                                            </button>
                                                         </div>
 
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapprove">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
-                                                                      <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-
-                                                            <div class="col-6 fs-8 my-2">
-                                                                {{post.dislike}}
-                                                            </div>
+                                                        <div class="col-6 fs-8 my-2">
+                                                            {{post.dislike}}
                                                         </div>
-                                                    {% elif approval_type == 0 %}
-                                                        <div class="row">
-                                                            <div class="col-auto">
-                                                                <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approve">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-                                                            <div class="col-6 fs-8 my-2 ">
-                                                                {{post.like}}
-                                                            </div>
-                                                        </div>
+                                                    </div>
 
-                                                        <div class="row">
-                                                            &nbsp
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapprove">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak-fill" viewBox="0 0 16 16">
-                                                                      <path fill-rule="evenodd" d="M8.931.586 7 3l1.5 4-2 3L8 15C22.534 5.396 13.757-2.21 8.931.586ZM7.358.77 5.5 3 7 7l-1.5 3 1.815 4.537C-6.533 4.96 2.685-2.467 7.358.77Z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-
-                                                            <div class="col-6 fs-8 my-2">
-                                                                {{post.dislike}}
-                                                            </div>
-                                                        </div>
-                                                    {% elif approval_type == 3 %}
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approve">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-                                                            <div class="col-6 fs-8 my-2 ">
-                                                                {{post.like}}
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row">
-                                                            &nbsp
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapprove">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
-                                                                      <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-
-                                                            <div class="col-6 fs-8 my-2 ">
-                                                                {{post.dislike}}
-                                                            </div>
-                                                        </div>
-
-                                                    {% endif %}
                                                 {% endif %}
-                                            {% endfor %}
+                                            {% else %}
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <button type="submit" class="btn btn-outline-danger btn-circle" name="approval" value="approved">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-6 fs-8 my-2 ">
+                                                        {{post.like}}
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    &nbsp
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <button type="submit" class="btn btn-outline-secondary btn-circle" name="approval" value="disapproved">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartbreak" viewBox="0 0 16 16">
+                                                              <path fill-rule="evenodd" d="M8.867 14.41c13.308-9.322 4.79-16.563.064-13.824L7 3l1.5 4-2 3L8 15a38.094 38.094 0 0 0 .867-.59Zm-.303-1.01c6.164-4.4 6.91-7.982 6.22-9.921C14.031 1.37 11.447.42 9.587 1.368L8.136 3.18l1.3 3.468a1 1 0 0 1-.104.906l-1.739 2.608.971 3.237Zm-1.25 1.137a36.027 36.027 0 0 1-1.522-1.116C-5.077 4.97 1.842-1.472 6.454.293c.314.12.618.279.904.477L5.5 3 7 7l-1.5 3 1.815 4.537Zm-2.3-3.06C.895 7.797.597 4.875 1.308 3.248c.756-1.73 2.768-2.577 4.456-2.127L4.732 2.36a1 1 0 0 0-.168.991L5.91 6.943l-1.305 2.61a1 1 0 0 0-.034.818l.442 1.106Z"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="col-6 fs-8 my-2 ">
+                                                        {{post.dislike}}
+                                                    </div>
+                                                </div>
+
+                                            {% endif %}
                                         </div>
                                 </form>
                             {% else %}
@@ -256,9 +258,9 @@
                         <div class="col-sm-8 p-2">
                             <div class="row">
                                 <div class="col-auto">
-                                        <a href="{{ url_for('post', name=tiangge_name, title=post.title, hexcd=post.hex_cd) }}" class="link-primary fs-5 text-underline-hover">
-                                            {{ post.title }}
-                                        </a>
+                                    <a href="{{ url_for('post', name=tiangge_name, title=post.title, hexcd=post.hex_cd) }}" class="link-primary fs-5 text-underline-hover">
+                                        {{ post.title }}
+                                    </a>
                                 </div>
                             </div>
                             <div class="row py-3">
@@ -293,16 +295,18 @@
 
                                     <div class="col-auto pt-2">
                                         <p class="fs-7 "> Submitted {{post.date_created}} by
+
+                                            {% if user_logged %}
                                             {% if session['user'] != post.username %}
                                                 <a href="{{url_for('profile_submitted', profile_name=post.username)}}" class="link-primary text-underline-hover">
                                                     {{post.username}}
                                                 </a>
                                                 <form action="{{ url_for('interact_user_process',) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}"/>
-                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}"/>
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" readonly/>
+                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}" readonly/>
+                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}" readonly/>
                                                     {% if tiangge_data.tiangge_user_user_others(post.username)['relationship'] == "followed" %}
-                                                        <input type="hidden" name="user_relationship" value="unfollowed"/>
+                                                        <input type="hidden" name="user_relationship" value="unfollowed" readonly/>
                                                         <button type="submit" class="btn btn-primary btn-sm badge rounded-pill">Unfollow user</button>
                                                     {% else %}
                                                         <input type="hidden" name="user_relationship" value="followed"/>
@@ -310,14 +314,14 @@
                                                     {% endif %}
                                                 </form>
                                                 <form action="{{ url_for('interact_user_process',) }}" method="POST">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}"/>
-                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}"/>
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" readonly/>
+                                                    <input type="hidden" name="interacting_user" value="{{ session['user'] }}" readonly/>
+                                                    <input type="hidden" name="interacted_user" value="{{ post.username }}" readonly/>
                                                     {% if not tiangge_data.tiangge_user_user_others(post.username)['relationship'] == "blocked" %}
-                                                        <input type="hidden" name="user_relationship" value="blocked"/>
+                                                        <input type="hidden" name="user_relationship" value="blocked" readonly/>
                                                         <button type="submit" class="btn btn-danger btn-sm badge rounded-pill">Block user</button>
                                                     {% else %}
-                                                        <input type="hidden" name="user_relationship" value="unblocked"/>
+                                                        <input type="hidden" name="user_relationship" value="unblocked" readonly/>
                                                         <button type="submit" class="btn btn-secondary btn-sm badge rounded-pill">Unblock user</button>
                                                     {% endif %}
                                                 </form>
@@ -325,6 +329,9 @@
                                                 <a href="{{url_for('profile_submitted', profile_name=post.username)}}" class="link-primary text-underline-hover">
                                                     {{post.username}}
                                                 </a>
+                                            {% endif %}
+                                            {% else %}
+                                                {{skip}}
                                             {% endif %}
                                         </p>
                                     </div>
@@ -382,50 +389,39 @@
                                         </div>
                                     {% endif %}
                                 {% endfor %}
-
                                 <div class="col-auto  ">
                                     {% if user_logged %}
-                                        {% for post_ids, saved in user_saved.items() %}
-                                            {% if post.id == post_ids %}
-                                                {% if saved == 'Saved' %}
-                                                    <form action="{{ url_for('unsave_post_process')}}" method="post" id="submitNoButton" >
-                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                        <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
-                                                        <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
-                                                        <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
-                                                        <button type="submit" value="Unsave" class="btn btn-outline-successinv btn-sm-super">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
-                                                              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-                                                            </svg>
-                                                            <small style="vertical-align:middle">
-                                                                saved
-                                                            </small>
-                                                        </button>
-                                                    </form>
-                                                {% elif saved == 'Unsaved' %}
-                                                    <form action="{{ url_for('save_post_process') }}" method="post">
-                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                        <input type="text" name="tiangge_name" value="{{ tiangge_name }}"  hidden readonly>
-                                                        <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
-                                                        <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
-                                                        <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
-                                                        <button type="submit" value="Save" class="btn btn-outline-success btn-sm-super">
-                                                            <span aria-hidden="true">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
-                                                                  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-                                                                </svg>
-                                                            </span>
+                                        <form action="{{ url_for('save_post_process')}}" method="post" id="submitNoButton" >
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
+                                            <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
+                                            <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
+                                            <input type="text" name="tiangge_name" value="{{ tiangge_name }}"  hidden readonly>
+                                            {% if currentuser_data.current_user_saved(post.id) %}
+                                                <button type="submit" name="saved_state" value="unsaved" class="btn btn-outline-successinv btn-sm-super">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
+                                                      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                                    </svg>
+                                                    <small style="vertical-align:middle">
+                                                        saved
+                                                    </small>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" name="saved_state"  value="saved" class="btn btn-outline-success btn-sm-super">
+                                                    <span aria-hidden="true">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
+                                                          <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                                        </svg>
+                                                    </span>
 
-                                                            <small style="vertical-align:middle">
-                                                                save
-                                                            </small>
-                                                        </button>
-                                                    </form>
-                                                {% endif %}
+                                                    <small style="vertical-align:middle">
+                                                        save
+                                                    </small>
+                                                </button>
                                             {% endif %}
-                                        {% endfor %}
+                                        </form>
                                     {% else %}
-                                        <button type="submit" value="Save" class="btn btn-outline-success btn-sm-super" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
+                                        <button type="submit" name="saved_state" value="saved" class="btn btn-outline-success btn-sm-super" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
                                             <span aria-hidden="true">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
                                                   <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
@@ -440,48 +436,36 @@
                                 </div>
                                 <div class="col-auto">
                                     {% if user_logged %}
-                                        {% for post_ids, hidden in tiangge_data.user_hidden(session['user']).items() %}
-                                            {% if post.id == post_ids %}
-                                                {% if hidden == 'Hidden' %}
-                                                    <form action="{{ url_for('unhide_post_process') }}" method="post" id="">
-                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                        <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
-                                                        <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
-                                                        <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
-                                                        <button type="submit" value="Unhide" class="btn btn-outline-secondaryinv btn-sm-super" >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
-                                                              <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
-                                                              <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
-                                                              <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
-                                                            </svg>
-                                                                <small style="vertical-align:middle">
-                                                                    Unhide
-                                                                </small>
-                                                        </button>
-                                                    </form>
-                                                {% elif hidden == 'Unhide' %}
-                                                    <form action="{{ url_for('hide_post_process') }}" method="post">
-                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                        <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
-                                                        <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
-                                                        <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
-                                                        <input type="text" name="tiangge_name" value="{{ tiangge_name }}"  hidden readonly>
-
-                                                        <button type="submit" value="Hide" class="btn btn-outline-secondary btn-sm-super" >
-                                                            <span aria-hidden="true">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
-                                                              <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-                                                            </svg>
-                                                            </span>
-
-                                                            <small style="vertical-align:middle">
-                                                                Hide
-                                                            </small>
-                                                        </button>
-                                                    </form>
-                                                {% endif %}
+                                        <form action="{{ url_for('hide_post_process') }}" method="post">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <input type="text" name="uploader_username" value="{{ post.username }}" hidden readonly>
+                                            <input type="text" name="post_title" value="{{ post.title }}" hidden readonly>
+                                            <input type="text" name="post_date_created" value="{{ post.date_created }}" hidden readonly>
+                                            <input type="text" name="tiangge_name" value="{{ tiangge_name }}"  hidden readonly>
+                                            {% if currentuser_data.current_user_hidden(post.id) %}
+                                                <button type="submit" name="hidden_state" value="unhidden" class="btn btn-outline-secondaryinv btn-sm-super" >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                                                      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                                                      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+                                                      <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+                                                    </svg>
+                                                        <small style="vertical-align:middle">
+                                                            Unhide
+                                                        </small>
+                                                </button>
+                                            {% else %}
+                                                <button type="submit" name="hidden_state" value="hidden" class="btn btn-outline-secondary btn-sm-super" >
+                                                    <span aria-hidden="true">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark " viewBox="0 0 16 16" style="">
+                                                      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                                    </svg>
+                                                    </span>
+                                                    <small style="vertical-align:middle">
+                                                        Hide
+                                                    </small>
+                                                </button>
                                             {% endif %}
-                                        {% endfor %}
+                                        </form>
                                     {% else %}
                                         <button value="Hide" class="btn btn-outline-secondary btn-sm-super"  type="button" data-bs-toggle="modal" data-bs-target="#exampleModal_login">
                                             <span aria-hidden="true">
@@ -598,7 +582,7 @@
                                       </div>
                                     </div>
 
-                                    <div class="modal fade" id="exampleModal_login_report" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal fade" id="exampleModal_login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                       <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                           <div class="modal-header">
@@ -703,7 +687,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-2"></div>
                     <div class="col-8 p-2">

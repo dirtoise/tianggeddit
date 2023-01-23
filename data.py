@@ -168,12 +168,6 @@ def slct_pvt_hx_tngg_pst_w_sr(user_id):
     results = cur.execute(query, (user_id, )).fetchall()
     return results
 
-def slct_pvt_pprvl_tngg_pst(tiangge_id):
-    conn, cur = connect_db(db_path)
-    query = 'SELECT * FROM pvt_approval_tiangge_post WHERE pvt_approval_tiangge_post.tiangge_id = ?'
-    results = cur.execute(query, (tiangge_id, )).fetchall()
-    return results
-
 def slct_pvt_pprvl_sr(user_id):
     conn, cur = connect_db(db_path)
     query = 'SELECT * FROM pvt_approval_user WHERE user_id = ? ORDER BY date_approval ASC'
@@ -256,53 +250,37 @@ def post_comment_counter(tiangge_id,):
     results = cur.execute(query, (tiangge_id, )).fetchall()
     return results
 
-def check_users_approvals(user_id,):
+def select_post_approval_with_user_id(user_id, approval_type):
     conn, cur = connect_db(db_path)
-    query = 'SELECT DISTINCT approvals.id, pvt_approval_user.approval_type,\
-            pvt_approval_user.user_id, pvt_approval_tiangge_post.post_id,\
-            pvt_approval_tiangge_post.tiangge_id\
-            FROM approvals\
-            INNER JOIN pvt_approval_user INNER JOIN pvt_approval_tiangge_post\
-            ON approvals.id = pvt_approval_user.approval_id AND\
-            approvals.id = pvt_approval_tiangge_post.approval_id\
-            WHERE\
-            pvt_approval_user.user_id = ?'
-    cur.execute(query, (user_id,))
-    results = cur.execute(query, (user_id,)).fetchall()
-    return results
-
-def select_post_approval_with_user_id(user_id,):
-    conn, cur = connect_db(db_path)
-    query = 'SELECT DISTINCT pvt_approval_user.user_id, pvt_approval_user.post_id,\
+    query = 'SELECT DISTINCT pvt_approval_user.post_id, pvt_approval_user.user_id, \
             pvt_approval_user.approval_type, posts.title, hex.hex_cd, posts.content,\
-            posts.content_type, posts.date_created, users.username,\
-            posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
+            posts.content_type, posts.date_created, users.username, tiangges.name,\
+            posts.like, posts.dislike, posts.total, pvt_hex_tiangge_post.tiangge_id\
             FROM pvt_approval_user\
             INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
             INNER JOIN hex\
             ON pvt_approval_user.post_id = posts.id AND posts.id = pvt_hex_tiangge_post.post_id AND\
             pvt_hex_tiangge_post.tiangge_id = tiangges.id AND pvt_hex_tiangge_post.user_id = users.id\
             AND pvt_hex_tiangge_post.hex_id = hex.id\
-            WHERE\
-            pvt_approval_user.user_id = ?'
-    cur.execute(query, (user_id,))
-    results = cur.execute(query, (user_id,)).fetchall()
+            WHERE pvt_approval_user.user_id = ? AND pvt_approval_user.approval_type = ?\
+            ORDER BY date_approval DESC'
+    cur.execute(query, (user_id, approval_type))
+    results = cur.execute(query, (user_id, approval_type,)).fetchall()
     return results
 
 def select_post_saved_with_user_id(user_id,):
     conn, cur = connect_db(db_path)
     query = 'SELECT DISTINCT pvt_saved_post_user.user_id, pvt_saved_post_user.post_id,\
-            posts.title, hex.hex_cd, posts.content,\
+            tiangges.name, posts.title, hex.hex_cd, posts.content,\
             posts.content_type, posts.date_created, users.username,\
-            posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
+            posts.like, posts.dislike, posts.total, pvt_hex_tiangge_post.tiangge_id\
             FROM pvt_saved_post_user\
             INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
             INNER JOIN hex\
             ON pvt_saved_post_user.post_id = posts.id AND posts.id = pvt_hex_tiangge_post.post_id AND\
             pvt_hex_tiangge_post.tiangge_id = tiangges.id AND pvt_hex_tiangge_post.user_id = users.id\
             AND pvt_hex_tiangge_post.hex_id = hex.id\
-            WHERE\
-            pvt_saved_post_user.user_id = ?'
+            WHERE pvt_saved_post_user.user_id = ?'
     cur.execute(query, (user_id,))
     results = cur.execute(query, (user_id,)).fetchall()
     return results
@@ -310,32 +288,31 @@ def select_post_saved_with_user_id(user_id,):
 def select_hidden_post_with_user_id(user_id,):
     conn, cur = connect_db(db_path)
     query = 'SELECT DISTINCT pvt_hidden_post_user.user_id, pvt_hidden_post_user.post_id,\
-            posts.title, hex.hex_cd, posts.content,\
+            tiangges.name, posts.title, hex.hex_cd, posts.content,\
             posts.content_type, posts.date_created, users.username,\
-            posts.like, posts.dislike, pvt_hex_tiangge_post.tiangge_id\
+            posts.like, posts.dislike, posts.total, pvt_hex_tiangge_post.tiangge_id\
             FROM pvt_hidden_post_user\
             INNER JOIN posts INNER JOIN pvt_hex_tiangge_post INNER JOIN tiangges INNER JOIN users\
             INNER JOIN hex\
             ON pvt_hidden_post_user.post_id = posts.id AND posts.id = pvt_hex_tiangge_post.post_id AND\
             pvt_hex_tiangge_post.tiangge_id = tiangges.id AND pvt_hex_tiangge_post.user_id = users.id\
             AND pvt_hex_tiangge_post.hex_id = hex.id\
-            WHERE\
-            pvt_hidden_post_user.user_id = ?'
+            WHERE pvt_hidden_post_user.user_id = ?'
     cur.execute(query, (user_id,))
     results = cur.execute(query, (user_id,)).fetchall()
     return results
 
 def select_post_with_user_id(user_id):
     conn, cur = connect_db(db_path)
-    query = 'SELECT DISTINCT posts.id, posts.title, posts.date_created, posts.user_id,\
-            users.username, hex.hex_cd, pvt_hex_tiangge_post.tiangge_id,\
-            posts.total, posts.like, posts.dislike, posts.content, posts.content_type\
-            FROM posts\
+    query = 'SELECT DISTINCT pvt_hex_tiangge_post.post_id, posts.title, posts.date_created,\
+            posts.user_id, users.username, hex.hex_cd, pvt_hex_tiangge_post.tiangge_id,\
+            posts.total, posts.like, posts.dislike, posts.content, posts.content_type,\
+            tiangges.name FROM posts\
             INNER JOIN pvt_hex_tiangge_post INNER JOIN hex INNER JOIN users \
-            ON posts.id = pvt_hex_tiangge_post.post_id AND\
-            pvt_hex_tiangge_post.hex_id = hex.id AND\
+            INNER JOIN tiangges ON posts.id = pvt_hex_tiangge_post.post_id AND\
+            pvt_hex_tiangge_post.hex_id = hex.id AND pvt_hex_tiangge_post.tiangge_id = tiangges.id AND\
             pvt_hex_tiangge_post.user_id = users.id\
-            WHERE pvt_hex_tiangge_post.user_id = ?'
+            WHERE pvt_hex_tiangge_post.user_id = ? ORDER BY posts.date_created DESC'
     results = cur.execute(query, (user_id,)).fetchall()
     return results
 
@@ -498,18 +475,6 @@ def insert_approval(approval_data):
     conn.commit()
     conn.close()
 
-def insert_pvt_approval_tiangge_post(pvt_approval_tiangge_post_data):
-    conn, cur = connect_db(db_path)
-    query = 'INSERT INTO pvt_approval_tiangge_post (approval_id, tiangge_id, post_id) VALUES (?, ?, ?)'
-    values = (
-        pvt_approval_tiangge_post_data['approval_id'],
-        pvt_approval_tiangge_post_data['tiangge_id'],
-        pvt_approval_tiangge_post_data['post_id'],
-    )
-    cur.execute(query, values)
-    conn.commit()
-    conn.close()
-
 def insert_pvt_approval_user(pvt_approval_data):
     conn, cur = connect_db(db_path)
     query = 'INSERT INTO pvt_approval_user (user_id, post_id, approval_type, date_approval) VALUES (?, ?, ?, ?)'
@@ -635,6 +600,18 @@ def delete_pvt_saved_post_user(user_id, post_id):
     cur.execute(query, (user_id, post_id,))
     conn.commit()
     conn.close()
+
+def slct_spcfc_pvt_svd_pst_sr(user_id, post_id):
+    conn, cur = connect_db(db_path)
+    query = 'SELECT * FROM pvt_saved_post_user WHERE user_id = ? AND post_id = ? ORDER BY date_saved DESC'
+    results = cur.execute(query, (user_id, post_id, )).fetchall()
+    return results
+
+def slct_spcfc_pvt_hddn_pst_sr(user_id, post_id):
+    conn, cur = connect_db(db_path)
+    query = 'SELECT * FROM pvt_hidden_post_user WHERE user_id = ? AND post_id = ? ORDER BY date_hidden DESC'
+    results = cur.execute(query, (user_id, post_id, )).fetchall()
+    return results
 
 def slct_pvt_hddn_pst_sr(user_id):
     conn, cur = connect_db(db_path)
